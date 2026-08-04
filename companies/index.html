@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Companies Login</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+  <style>
+    body { background-color: #f8f9fa; }
+    .login-container { max-width: 400px; margin: 100px auto; }
+    .table-container { margin: 20px 0; width: 100%; padding: 0 15px; }
+    .checkbox-lg { transform: scale(2); }
+    .header-info {
+      margin-bottom: 20px;
+      border: 2px solid #007bff;
+      border-radius: 10px;
+      padding: 15px;
+      background-color: #ffffff;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      max-width: 100%;
+    }
+    .table th {
+      background-color: #007bff;
+      color: white;
+      text-align: center;
+      vertical-align: middle;
+      padding: 12px;
+      line-height: 1.5;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .tableA th { background-color: #007bff; }
+    .tableB th { background-color: #666666; color: white; }
+    .tableC th { background-color: #f1c232; color: black; }
+    .tableD th { background-color: #cc4125; color: white; }
+    .tableE th { background-color: green; }
+
+    .tableE thead tr th:nth-child(22) { background-color: #dc3545; color: white; }
+    .tableE td:nth-child(23) {
+      width: 280px !important; min-width: 250px !important; max-width: 320px;
+      white-space: normal !important; word-break: break-word;
+      padding: 10px 12px !important; line-height: 1.5; text-align: left !important;
+    }
+    .tableE thead tr th:nth-child(23) { background-color: #dc3545; color: white; }
+    .table-tml th { background-color: #cfe2f3; color: black; }
+    .table td:nth-child(n+11):nth-child(-n+22) { text-align: center; vertical-align: middle; }
+
+    .tableE td:last-child {text-align: center;}
+
+    .tableA th:nth-child(13), .tableA td:nth-child(13),
+    .tableB th:nth-child(13), .tableB td:nth-child(13),
+    .tableC th:nth-child(13), .tableC td:nth-child(13),
+    .tableD th:nth-child(13), .tableD td:nth-child(13),
+    .tableE th:nth-child(13), .tableE td:nth-child(13),
+    .table-tml th:nth-child(13), .table-tml td:nth-child(13) { display: none !important; }
+
+    .tableA thead tr th:nth-child(18) { background-color: #28a745; color: white; }
+    .tableA thead tr th:nth-child(19) { background-color: #dc3545; color: white; }
+
+    .header-table { width: 100%; max-width: 100%; border-collapse: collapse; }
+    .header-table td { padding: 5px; }
+    .header-table td:nth-child(1) { width: 120px; font-weight: bold; }
+    .header-table td:nth-child(2) { width: 20px; text-align: center; }
+    .table-section { margin-bottom: 40px; }
+    .table-title { font-size: 1.2em; font-weight: bold; margin-bottom: 10px; }
+    .logout-container { text-align: end; margin-top: 20px; }
+    .table-responsive {
+      max-height: 500px;
+      overflow-y: auto;
+      display: block;
+    }
+    .centers-dropdown { margin-bottom: 20px; max-width: 500px; }
+
+    .tableA th:nth-child(13), .tableA td:nth-child(13),
+    .tableB th:nth-child(13), .tableB td:nth-child(13),
+    .tableC th:nth-child(13), .tableC td:nth-child(13) {
+      min-width: 200px; max-width: 300px;
+      white-space: normal; overflow: visible;
+    }
+    .tableB th:nth-child(21), .tableB td:nth-child(21) {
+      min-width: 200px; max-width: 300px;
+      white-space: normal; overflow: visible;
+    }
+    .company-dropdown {
+      width: 100%; max-width: 100%;
+      box-sizing: border-box; white-space: nowrap;
+    }
+    .company-dropdown option { white-space: normal; }
+
+    .table-tml thead tr th:nth-child(16),
+    .table-tml thead tr th:nth-child(17) { background-color: #dc3545; color: white; }
+    .table-tml thead tr th:nth-child(18),
+    .table-tml thead tr th:nth-child(19) { background-color: #28a745; color: white; }
+
+    #refreshButton {
+      background-color: #f0c14b;
+      border: 2px solid #c38f00;
+      color: #212529;
+      font-weight: bold;
+      padding: 8px 20px;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+    }
+    #refreshButton:hover {
+      background-color: #e6b800;
+      border-color: #a67c00;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+  </style>
+</head>
+<body>
+  <!-- Login Page -->
+  <div id="loginPage" class="login-container">
+    <div class="card shadow">
+      <div class="card-body">
+        <center><img src="https://i.ibb.co/VRWC6dV/Mo-H-Logo-1.png" alt="MoH-Logo" border="0"
+          style="max-width:100%;height:auto;display:block;margin:auto;"></center>
+        <br><br>
+        <h3 class="card-title text-center mb-4">Companies Login</h3>
+        <form id="loginForm">
+          <div class="mb-3">
+            <label for="username" class="form-label">Username</label>
+            <input type="text" class="form-control" id="username" required autocomplete="off">
+          </div>
+          <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" class="form-control" id="password" required>
+          </div>
+          <button type="submit" class="btn btn-primary w-100">Login</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table Page -->
+  <div id="tablePage" class="table-container d-none">
+    <center><img src="https://i.ibb.co/VRWC6dV/Mo-H-Logo-1.png" alt="MoH-Logo" border="0"
+      style="max-width:100%;height:auto;display:block;margin:auto;"></center>
+    <br><br>
+
+    <div class="centers-dropdown" style="display:none">
+      <label for="centersSelect" class="form-label fw-bold">Governate Name:</label>
+      <select id="centersSelect" class="form-select" disabled>
+        <option value="">Choose</option>
+      </select>
+    </div>
+
+    <div class="header-info">
+      <table class="header-table">
+        <tr style="display:none"><td>Governorate</td><td>:</td><td id="governateName"></td></tr>
+        <tr style="display:none"><td>Selected Governate</td><td>:</td><td id="centerName"></td></tr>
+        <tr><td>Company Name</td><td>:</td><td id="adminName"></td></tr>
+      </table>
+    </div>
+
+    <!-- Table 1 -->
+    <div class="table-section">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="table-title">Pending Requests</div>
+        <button id="refreshButton" class="btn btn-warning text-dark fw-bold px-4">
+          <i class="bi bi-arrow-clockwise me-2"></i>Refresh
+        </button>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-bordered table-striped tableA">
+          <thead><tr>
+            <th>Response</th><th>Time (GMT)</th><th>Governorate</th><th>Center</th>
+            <th>Reporter Name</th><th>Mobile Number</th><th>Room</th>
+            <th>Area of Malfunction</th><th>Malfunction</th><th>Model</th>
+            <th>Serial</th><th>Supplier</th><th>Recap Info</th><th>Code</th>
+            <th>Company Name</th><th>TimeStamp Admin Sent</th><th>Admin Name</th>
+            <th>Received</th><th>Reject</th>
+          </tr></thead>
+          <tbody id="dataTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Table 2 -->
+    <div class="table-section">
+      <div class="table-title">Assigning Tech</div>
+      <div class="table-responsive">
+        <table class="table table-bordered table-striped tableB">
+          <thead><tr>
+            <th>Response</th><th>Time (GMT)</th><th>Governorate</th><th>Center</th>
+            <th>Reporter Name</th><th>Mobile Number</th><th>Room</th>
+            <th>Area of Malfunction</th><th>Malfunction</th><th>Model</th>
+            <th>Serial</th><th>Supplier</th><th>Recap Info</th><th>Code</th>
+            <th>Company Name</th><th>TimeStamp Admin Sent</th><th>Admin Name</th>
+            <th>Status</th><th>Company Received By</th><th>TimeStamp Company Received</th>
+            <th>Technician Name</th><th>Assign</th>
+          </tr></thead>
+          <tbody id="dataTableB"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Table 3 -->
+    <div class="table-section">
+      <div class="table-title">Tech Recieved</div>
+      <div class="table-responsive">
+        <table class="table table-bordered table-striped tableC">
+          <thead><tr>
+            <th>Response</th><th>Time (GMT)</th><th>Governorate</th><th>Center</th>
+            <th>Reporter Name</th><th>Mobile Number</th><th>Room</th>
+            <th>Area of Malfunction</th><th>Malfunction</th><th>Model</th>
+            <th>Serial</th><th>Supplier</th><th>Recap Info</th><th>Code</th>
+            <th>Company Name</th><th>TimeStamp Admin Sent</th><th>Admin Name</th>
+            <th>Company Received By</th><th>TimeStamp Company Received</th>
+            <th>Technician Name</th><th>TimeStamp Technician Received</th>
+          </tr></thead>
+          <tbody id="dataTableC"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Table 4 -->
+    <div class="table-section">
+      <div class="table-title">Not Fixed Issues</div>
+      <div class="table-responsive">
+        <table class="table table-bordered table-striped tableD">
+          <thead><tr>
+            <th>Response</th><th>Time (GMT)</th><th>Governorate</th><th>Center</th>
+            <th>Reporter Name</th><th>Mobile Number</th><th>Room</th>
+            <th>Area of Malfunction</th><th>Malfunction</th><th>Model</th>
+            <th>Serial</th><th>Supplier</th><th>Recap Info</th><th>Code</th>
+            <th>Company Name</th><th>TimeStamp Admin Sent</th><th>Admin Name</th>
+            <th>Company Received By</th><th>TimeStamp Company Received</th>
+            <th>Technician Name</th><th>TimeStamp Technician Received</th>
+            <th>TimeStamp of Not Fixed</th><th>Reasons</th>
+          </tr></thead>
+          <tbody id="dataTableD"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Table 5 -->
+    <div class="table-section">
+      <div class="table-title">Fixed Issues</div>
+      <div class="table-responsive">
+        <table class="table table-bordered table-striped tableE">
+          <thead><tr>
+            <th>Response</th><th>Time (GMT)</th><th>Governorate</th><th>Center</th>
+            <th>Reporter Name</th><th>Mobile Number</th><th>Room</th>
+            <th>Area of Malfunction</th><th>Malfunction</th><th>Model</th>
+            <th>Serial</th><th>Supplier</th><th>Recap Info</th><th>Code</th>
+            <th>Company Name</th><th>TimeStamp Admin Sent</th><th>Admin Name</th>
+            <th>Company Received By</th><th>TimeStamp Company Received</th>
+            <th>Technician Name</th><th>TimeStamp Technician Received</th>
+            <th>TimeStamp of Not Fixed</th><th>Reasons</th>
+            <th>TimeStamp of Fixed</th><th>Fixed Notes</th><th>Invoice File</th>
+          </tr></thead>
+          <tbody id="dataTableE"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Table TML -->
+    <div class="table-section">
+      <div class="table-title">Teamleader Review</div>
+      <div class="table-responsive">
+        <table class="table table-bordered table-striped table-tml">
+          <thead><tr>
+            <th>Response</th><th>Time (GMT)</th><th>Governorate</th><th>Center</th>
+            <th>Reporter Name</th><th>Mobile Number</th><th>Room</th>
+            <th>Area of Malfunction</th><th>Malfunction</th><th>Model</th>
+            <th>Serial</th><th>Supplier</th><th>Recap Info</th><th>Code</th>
+            <th>Technician Status</th>
+            <th>TimeStamp of Not Fixed</th><th>Reasons</th>
+            <th>TimeStamp of Fixed</th><th>Fixed Notes</th>
+            <th>Teamleader Review</th><th>Review TimeStamp</th><th>Teamleader Name</th>
+          </tr></thead>
+          <tbody id="dataTableTML"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="logout-container">
+      <button id="logoutButton" class="btn btn-danger">Logout</button>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    let svUn = '';
+    let currentAdminName = '';
+    let notificationInterval = null;
+    let lastKnownTs = 0; // epoch timestamp from CacheTimestamp!A1, stored in client memory
+
+    // ── Helper: parse dd/MM/yyyy HH:mm:ss → Date ──────────────────────────────
+    // ── Helper: parse dd/MM/yyyy HH:mm:ss → Date ──────────────────────────────
+    function parseDateClient(str) {
+      if (!str) return null;
+      // If you have a Date object, return as is
+      if (str instanceof Date) return isNaN(str) ? null : str;
+      // If string, parse with regex
+      const m = String(str).match(/^(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2}):(\d{2})$/);
+      if (!m) return null;
+      return new Date(+m[3], +m[2]-1, +m[1], +m[4], +m[5], +m[6]);
+    }
+
+    // ── Helper: build simple TD rows ──────────────────────────────────────────
+    function buildTds(row, count, style) {
+      let s = '';
+      for (let i = 0; i < count; i++) {
+        let cellValue = row[i];
+        // Make sure it is not a Date object
+        if (cellValue instanceof Date) {
+          const dd = String(cellValue.getDate()).padStart(2, '0');
+          const MM = String(cellValue.getMonth() + 1).padStart(2, '0');
+          const yyyy = cellValue.getFullYear();
+          const HH = String(cellValue.getHours()).padStart(2, '0');
+          const mm = String(cellValue.getMinutes()).padStart(2, '0');
+          const ss = String(cellValue.getSeconds()).padStart(2, '0');
+          cellValue = `${dd}/${MM}/${yyyy} ${HH}:${mm}:${ss}`;
+        } else if (cellValue === null || cellValue === undefined) {
+          cellValue = '';
+        } else {
+          cellValue = String(cellValue);
+        }
+        s += `<td${style}>${cellValue}</td>`;
+      }
+      return s;
+    }
+
+    // ── Helper ────────────────────────────────────────────────────────────────
+    function parseDate(str) {
+      if (!str) return null;
+      const m = String(str).match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4}) (\d{1,2}):(\d{1,2}):(\d{1,2})$/);
+      if (!m) return null;
+      const yyyy = m[3].length === 2 ? 2000 + +m[3] : +m[3];
+      return new Date(yyyy, +m[2]-1, +m[1], +m[4], +m[5], +m[6]);
+    }
+
+    function isOver24h(timeStr) {
+      const t = parseDate(timeStr);
+      if (!t) return false;
+      return (new Date() - t) / 3600000 > 24;
+    }
+
+    function isOver24hBetween(startStr, endStr) {
+      const s = parseDate(startStr);
+      if (!s) return false;
+      const e = endStr ? parseDate(endStr) : new Date();
+      if (!e) return false;
+      return (e - s) / 3600000 > 24;
+    }
+
+    function esc(v) {
+      return String(v === undefined || v === null ? '' : v)
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    }
+
+    // ── Render Table 1 ────────────────────────────────────────────────────────
+    function renderTable1(data, governate, center) {
+      const now = new Date();
+      const tbody = $('#dataTable');
+      const rows = [];
+      data.forEach(row => {
+        const t = parseDateClient(row[1]);
+        const over24 = t && ((now - t) / 3_600_000 > 24);
+        const st = over24 ? ' style="color:red"' : '';
+        rows.push(`<tr>
+          ${buildTds(row, 17, st)}
+          <td${st}><input type="checkbox" class="checkbox-lg received" data-row='${escJson(row)}'></td>
+          <td${st}><input type="checkbox" class="checkbox-lg reject"   data-row='${escJson(row)}'></td>
+        </tr>`);
+      });
+      tbody.html(rows.join(''));
+      attachCheckboxStatusHandlers(governate, center);
+    }
+
+    // ── Render Table 2 ────────────────────────────────────────────────────────
+    function renderTable2(response, governate, center) {
+      const now = new Date();
+      const tbody = $('#dataTableB');
+      const companiesList = response.companiesList;
+      const rowsProper = [];
+
+      response.tableData.forEach(row => {
+        const isRejected = String(row[17]).trim() === 'Reject';
+        // Red: > 24 hours have passed since submission AND there is no Company Received Timestamp
+        const submitT   = parseDateClient(row[1]);
+        const noReceived = !row[20] || row[20].trim() === ''; // index 20 = Timestamp Company Received
+        const over24    = submitT && noReceived && ((now - submitT) / 3_600_000 > 24);
+        const st        = over24 ? ' style="color:red"' : '';
+
+        let selectHTML;
+        if (isRejected) {
+          selectHTML = `<select class="form-select company-dropdown" data-row='${escJson(row)}' disabled><option></option></select>`;
+        } else {
+          const opts = companiesList.map(c =>
+            `<option value="${esc(c)}" ${row[20] === c ? 'selected' : ''}>${esc(c)}</option>`
+          ).join('');
+          selectHTML = `<select class="form-select company-dropdown" data-row='${escJson(row)}'>
+            <option value="">Select Technician Name</option>${opts}</select>`;
+        }
+        const chkHTML = `<input type="checkbox" class="checkbox-lg receivedTable2"
+          data-row='${escJson(row)}' ${isRejected ? 'disabled' : ''}>`;
+
+        rowsProper.push(`<tr>
+          ${buildTds(row, 20, st)}
+          <td${st}>${selectHTML}</td>
+          <td${st}>${chkHTML}</td>
+        </tr>`);
+      });
+
+      tbody.html(rowsProper.join(''));
+      attachDropdownHandlers(governate, center);
+      attachCheckboxHandlers2(governate, center);
+    }
+
+    // ── Render Table 3 ────────────────────────────────────────────────────────
+    function renderTable3(data) {
+      const now = new Date();
+      const tbody = $('#dataTableC');
+      const rows = [];
+      data.forEach(row => {
+        const submitT  = parseDateClient(row[1]);
+        const receivedT = parseDateClient(row[20]);
+        let over24 = false;
+        if (submitT) {
+          if (!receivedT) {
+            over24 = (now - submitT) / 3_600_000 > 24;
+          } else {
+            over24 = (receivedT - submitT) / 3_600_000 > 24;
+          }
+        }
+        const st = over24 ? ' style="color:red"' : '';
+        rows.push(`<tr>${buildTds(row, 21, st)}</tr>`);
+      });
+      tbody.html(rows.join(''));
+    }
+
+    // ── Render Table 4 ────────────────────────────────────────────────────────
+    function renderTable4(data) {
+      const rows = data.map(row => `<tr>${buildTds(row, 23, '')}</tr>`);
+      $('#dataTableD').html(rows.join(''));
+    }
+
+    // ── Render Table 5 ────────────────────────────────────────────────────────
+    function renderTable5(data) {
+      // const rows = data.map(row => `<tr>${buildTds(row, 23, '')}</tr>`);
+      // $('#dataTableE').html(rows.join(''));
+      const rows = data.map(row => {
+        // const st = isOver24hBetween(row[1], row[21]) ? ' style="color:red"' : '';
+        // return `<tr>${buildTds(row, 23, st)}</tr>`;
+        const st = isOver24hBetween(row[1], row[23]) ? ' style="color:red"' : '';
+        const lastVal = row[25] || '';
+        const lastCell = lastVal.trim() !== ''
+          ? `<td${st}><a href="${esc(lastVal)}" target="_blank" style="color:#007bff;text-decoration:none;">View</a></td>`
+          : `<td${st}>-</td>`;
+        return `<tr>${buildTds(row, 25, st)}${lastCell}</tr>`;
+      });
+      $('#dataTableE').html(rows.join(''));
+    }
+
+    // ── Render Table TML ──────────────────────────────────────────────────────
+    function renderTableTML(data) {
+      const rows = data.map(row => {
+        const isNotFixed = String(row[19] || '').toLowerCase().includes('not fixed');
+        const st = isNotFixed ? ' style="color:red"' : '';
+        return `<tr>${buildTds(row, 22, st)}</tr>`;
+      });
+      $('#dataTableTML').html(rows.join(''));
+    }
+
+    // ── MASTER LOAD: 1 server call for all tables ─────────────────────────
+    function loadAllTables(governate, center) {
+      Swal.fire({
+        title: 'Loading data...',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        showConfirmButton: false,
+        didOpen: () => Swal.showLoading()
+      });
+
+      google.script.run
+        .withSuccessHandler(function(allData) {
+          renderTable1(allData.table1, governate, center);
+          renderTable2(allData.table2, governate, center);
+          renderTable3(allData.table3);
+          renderTable4(allData.table4);
+          renderTable5(allData.table5);
+          renderTableTML(allData.tableTML);
+          Swal.close();
+
+          // After loading, synchronize lastKnownTs with the latest server timestamp.
+          // so that notifications don't appear immediately after refreshing
+          google.script.run
+            .withSuccessHandler(r => { if (r.currentTs > 0) lastKnownTs = r.currentTs; })
+            .checkForNotification(0); // send 0 = only request currentTs, not check for updates
+        })
+        .withFailureHandler(function(err) {
+          Swal.fire('Error', 'Failed to load data: ' + err, 'error');
+        })
+        .getAllTableData(governate, center, currentAdminName);
+    }
+
+    // ── Escape helpers ────────────────────────────────────────────────────────
+    function escJson(row) {
+      return JSON.stringify(row).replace(/'/g, '&#39;');
+    }
+
+    // ── Checkbox handlers Table 1 ─────────────────────────────────────────────
+    function attachCheckboxStatusHandlers(governate, center) {
+      $('.received').off('change').on('change', function() {
+        if (!$(this).is(':checked')) return;
+        const row = JSON.parse($(this).attr('data-row'));
+        Swal.fire({ title: 'Marking as Received...', didOpen: () => Swal.showLoading() });
+        google.script.run
+          .withSuccessHandler(() => {
+            Swal.close();
+            loadAllTables(governate, center || '');
+          })
+          .withFailureHandler(err => alert('Error: ' + err))
+          .submitStatusA([row], governate, currentAdminName, 'Received', svUn);
+      });
+
+      $('.reject').off('change').on('change', function() {
+        if (!$(this).is(':checked')) return;
+        const row = JSON.parse($(this).attr('data-row'));
+        Swal.fire({
+          title: 'Choose Reason',
+          html: `<select id="reasonDropdown" class="swal2-select"><option value="Select">Select</option></select>`,
+          showCancelButton: true,
+          confirmButtonText: 'Send',
+          didOpen: () => {
+            google.script.run
+              .withSuccessHandler(reasons => {
+                const dd = $('#reasonDropdown');
+                reasons.forEach(r => { if (r) dd.append(`<option value="${esc(r)}">${esc(r)}</option>`); });
+              })
+              .getReasonsFromSheet();
+          },
+          preConfirm: () => {
+            const v = $('#reasonDropdown').val();
+            if (v === 'Select') { Swal.showValidationMessage('Please select a valid reason'); return false; }
+            return v;
+          }
+        }).then(result => {
+          if (!result.isConfirmed) return;
+          const submissionData = [...row, result.value];
+          Swal.fire({ title: 'Submitting...', didOpen: () => Swal.showLoading() });
+          google.script.run
+            .withSuccessHandler(() => {
+              Swal.fire({ title: 'Success', text: 'Data sent', icon: 'success', timer: 1500, showConfirmButton: false });
+              loadAllTables(governate, center || '');
+            })
+            .withFailureHandler(err => Swal.fire('Error', 'Submission failed: ' + err, 'error'))
+            .submitStatusA([submissionData], governate, currentAdminName, 'Reject', svUn);
+        });
+      });
+    }
+
+    // ── Dropdown & checkbox handlers Table 2 ─────────────────────────────────
+    function attachDropdownHandlers(governate, center) {
+      $('.company-dropdown').off('change').on('change', function() {
+        const row = JSON.parse($(this).attr('data-row'));
+        const newCompany = $(this).val();
+        const updatedRow = [...row.slice(0, 14), newCompany];
+        $(this).closest('tr').find('.receivedTable2').attr('data-row', JSON.stringify(updatedRow));
+      });
+    }
+
+    function attachCheckboxHandlers2(governate, center) {
+      $('.receivedTable2').off('change').on('change', function() {
+        if (!$(this).is(':checked')) return;
+        const row = JSON.parse($(this).attr('data-row'));
+        const selectedCompany = $(this).closest('tr').find('.company-dropdown').val();
+        if (!selectedCompany) {
+          Swal.fire({ icon: 'warning', title: 'Please choose data first', confirmButtonText: 'OK' });
+          $(this).prop('checked', false);
+          return;
+        }
+        Swal.fire({ title: 'Marking as Received...', didOpen: () => Swal.showLoading() });
+        google.script.run
+          .withSuccessHandler(() => {
+            Swal.close();
+            loadAllTables(governate, center || '');
+          })
+          .withFailureHandler(err => alert('Error: ' + err))
+          .submitStatusB([row], governate, currentAdminName, 'Received', svUn);
+      });
+    }
+
+    // ── Notification checker ──────────────────────────────────────────────────
+    function startNotificationChecker() {
+      if (notificationInterval) clearInterval(notificationInterval);
+      notificationInterval = setInterval(() => {
+        google.script.run
+          // Send lastKnownTs to server — server compares it with CacheTimestamp!A1
+          .withSuccessHandler(result => {
+            // Always update lastKnownTs with the latest value from the server.
+            if (result.currentTs && result.currentTs > 0) {
+              if (lastKnownTs === 0) {
+                // First initialization: save ts without popup
+                lastKnownTs = result.currentTs;
+              } else if (result.hasNewData) {
+                // There is an update from another webApp
+                lastKnownTs = result.currentTs;
+                showUpdateNotification();
+              }
+            }
+          })
+          .withFailureHandler(err => console.error('Notification check failed:', err))
+          .checkForNotification(lastKnownTs);
+      }, 10000);
+    }
+
+    function showUpdateNotification() {
+      // If a popup is already open, do not display it again.
+      if (Swal.isVisible()) return;
+      Swal.fire({
+        title: 'New data has been updated in database',
+        text: 'Refresh table now?',
+        icon: 'info',
+        confirmButtonText: 'Update',
+        allowOutsideClick: false,
+        allowEscapeKey: false
+      }).then(result => {
+        if (result.isConfirmed) {
+          loadAllTables($('#governateName').text(), $('#centersSelect').val() || '');
+        }
+      });
+    }
+
+    // ── Main ready ────────────────────────────────────────────────────────────
+    $(document).ready(function() {
+
+      $('#loginForm').on('submit', function(e) {
+        e.preventDefault();
+        const username = $('#username').val();
+        const password = $('#password').val();
+        svUn = username;
+
+        Swal.fire({ title: 'Logging in...', didOpen: () => Swal.showLoading() });
+
+        google.script.run
+          .withSuccessHandler(function(result) {
+            Swal.close();
+            if (result.success) {
+              Swal.fire({
+                title: 'Success', text: 'Login successful!', icon: 'success',
+                timer: 1500, timerProgressBar: true, showConfirmButton: false
+              }).then(() => {
+                $('#loginPage').addClass('d-none');
+                $('#tablePage').removeClass('d-none');
+                $('#governateName').text(result.governate);
+                $('#centerName').text('');
+                $('#adminName').text(result.adminName);
+                currentAdminName = result.adminName;
+
+                const select = $('#centersSelect');
+                select.empty().append('<option value="">Choose</option>');
+                result.governateDropdown.forEach(c => {
+                  select.append(`<option value="${esc(c)}">${esc(c)}</option>`);
+                });
+
+                loadAllTables(result.governate, '');
+                startNotificationChecker();
+              });
+            } else {
+              Swal.fire('Error', 'Invalid username or password', 'error');
+            }
+          })
+          .withFailureHandler(err => {
+            Swal.close();
+            Swal.fire('Error', 'Login failed: ' + err, 'error');
+          })
+          .doLogin(username, password);
+      });
+
+      $('#centersSelect').on('change', function() {
+        const selectedCenter = $(this).val();
+        $('#centerName').text(selectedCenter || 'None');
+        loadAllTables($('#governateName').text(), selectedCenter);
+      });
+
+      $('#refreshButton').on('click', function() {
+        loadAllTables($('#governateName').text().trim(), $('#centersSelect').val() || '');
+      });
+
+      $('#logoutButton').on('click', function() {
+        if (notificationInterval) clearInterval(notificationInterval);
+        $('#tablePage').addClass('d-none');
+        $('#loginPage').removeClass('d-none');
+        $('#loginForm')[0].reset();
+        ['#dataTable','#dataTableB','#dataTableC','#dataTableD','#dataTableE','#dataTableTML','#centersSelect']
+          .forEach(id => $(id).empty());
+        currentAdminName = '';
+        svUn = '';
+      });
+    });
+  </script>
+</body>
+</html>
