@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Super Admin Login</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+  <style>
+    body { background-color: #f8f9fa; }
+    .login-container { max-width: 400px; margin: 100px auto; }
+    .table-container { margin: 20px 0; width: 100%; padding: 0 15px; }
+    .checkbox-lg { transform: scale(2); }
+    .header-info {
+      margin-bottom: 20px;
+      border: 2px solid #007bff;
+      border-radius: 10px;
+      padding: 15px;
+      background-color: #ffffff;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      max-width: 100%;
+    }
+    .table th {
+      background-color: #007bff;
+      color: white;
+      text-align: center;
+      vertical-align: middle;
+      padding: 12px;
+      line-height: 1.5;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .tableA th { background-color: #ead1dc; color: black }
+    .tableB th { background-color: #007bff; }
+    .tableC th { background-color: #666666; }
+    .tableD th { background-color: #f1c232; color: black }
+    .tableE th { background-color: #cc4125; }
+    .tableF th { background-color: #34a853; }
+
+    .tableF thead tr th:nth-child(22) { background-color: #dc3545; color: white; }
+    .tableF td:nth-child(23) {
+      width: 280px !important; min-width: 250px !important; max-width: 320px;
+      white-space: normal !important; word-break: break-word;
+      padding: 10px 12px !important; line-height: 1.5; text-align: left !important;
+    }
+    .tableF thead tr th:nth-child(23) { background-color: #dc3545; color: white; }
+
+    .table-tml th { background-color: #cfe2f3; color: black }
+    .table td:nth-child(11), .table td:nth-child(12), .table td:nth-child(13),
+    .table td:nth-child(14), .table td:nth-child(15), .table td:nth-child(16),
+    .table td:nth-child(17) { text-align: center; vertical-align: middle; }
+    .tableF td:nth-child(23) {
+      width: 280px !important;
+      min-width: 250px !important;
+      max-width: 320px;
+      white-space: normal !important;
+      word-break: break-word;
+      padding: 10px 12px !important;
+      line-height: 1.5;
+      text-align: left !important;
+    }
+
+    .tableF td:last-child {text-align: center;}
+
+    .header-table { width: 100%; max-width: 100%; border-collapse: collapse; }
+    .header-table td { padding: 5px; }
+    .header-table td:nth-child(1) { width: 120px; font-weight: bold; }
+    .header-table td:nth-child(2) { width: 20px; text-align: center; }
+    .table-section { margin-bottom: 40px; }
+    .table-title { font-size: 1.2em; font-weight: bold; margin-bottom: 10px; }
+    .logout-container { text-align: end; margin-top: 20px; }
+    .table-responsive { max-height: 500px; overflow-y: auto; display: block; }
+    .centers-dropdown { margin-bottom: 20px; max-width: 500px; }
+    .table th:nth-child(10), .table td:nth-child(10) {
+      min-width: 200px; max-width: 300px;
+      white-space: normal; overflow: visible;
+    }
+    .company-dropdown { width: 100%; max-width: 100%; box-sizing: border-box; white-space: nowrap; }
+    .company-dropdown option { white-space: normal; }
+    .table-tml thead tr th:nth-child(16) { background-color: #dc3545; color: white; }
+    .table-tml thead tr th:nth-child(17) { background-color: #dc3545; color: white; }
+    .table-tml thead tr th:nth-child(18) { background-color: #28a745; color: white; }
+    .table-tml thead tr th:nth-child(19) { background-color: #28a745; color: white; }
+    .table-tml td:nth-child(19) {
+      width: 280px !important; min-width: 250px !important; max-width: 320px;
+      white-space: normal !important; word-break: break-word;
+      padding: 10px 12px !important; line-height: 1.5; text-align: left !important;
+    }
+    .tableA th:nth-child(13), .tableA td:nth-child(13),
+    .tableB th:nth-child(13), .tableB td:nth-child(13),
+    .tableC th:nth-child(13), .tableC td:nth-child(13),
+    .tableD th:nth-child(13), .tableD td:nth-child(13),
+    .tableE th:nth-child(13), .tableE td:nth-child(13),
+    .tableF th:nth-child(13), .tableF td:nth-child(13),
+    .table-tml th:nth-child(13), .table-tml td:nth-child(13) { display: none !important; }
+    #refreshButton {
+      background-color: #f0c14b; border: 2px solid #c38f00;
+      color: #212529; font-weight: bold; padding: 8px 20px;
+      border-radius: 6px; transition: all 0.2s ease;
+    }
+    #refreshButton:hover {
+      background-color: #e6b800; border-color: #a67c00;
+      transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Login Page -->
+  <div id="loginPage" class="login-container">
+    <div class="card shadow">
+      <div class="card-body">
+        <center><img src="https://i.ibb.co/VRWC6dV/Mo-H-Logo-1.png" alt="MoH-Logo" border="0"
+          style="max-width:100%;height:auto;display:block;margin:auto;"></center>
+        <br><br>
+        <h3 class="card-title text-center mb-4">Super Admin Login</h3>
+        <form id="loginForm">
+          <div class="mb-3">
+            <label for="username" class="form-label">Username</label>
+            <input type="text" class="form-control" id="username" required autocomplete="off">
+          </div>
+          <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" class="form-control" id="password" required>
+          </div>
+          <button type="submit" class="btn btn-primary w-100">Login</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table Page -->
+  <div id="tablePage" class="table-container d-none">
+    <center><img src="https://i.ibb.co/VRWC6dV/Mo-H-Logo-1.png" alt="MoH-Logo" border="0"
+      style="max-width:100%;height:auto;display:block;margin:auto;"></center>
+    <div class="centers-dropdown" style="display:none">
+      <label for="centersSelect" class="form-label fw-bold">Centers Name:</label>
+      <select id="centersSelect" class="form-select">
+        <option value="">Choose</option>
+      </select>
+    </div>
+    <div class="header-info">
+      <table class="header-table">
+        <tr style="display:none"><td>Governorate</td><td>:</td><td id="governateName"></td></tr>
+        <tr style="display:none"><td>Selected Center</td><td>:</td><td id="centerName"></td></tr>
+        <tr><td>Admin Name</td><td>:</td><td id="adminName"></td></tr>
+      </table>
+    </div>
+
+    <!-- Table 1: Rejected -->
+    <div class="table-section">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="table-title">Rejected Requests</div>
+        <button id="refreshButton" class="btn btn-warning text-dark fw-bold px-4">
+          <i class="bi bi-arrow-clockwise me-2"></i>Refresh
+        </button>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-bordered table-striped tableA">
+          <thead><tr>
+            <th>Response</th><th>Time (GMT)</th><th>Governorate</th><th>Center</th>
+            <th>Reporter Name</th><th>Mobile Number</th><th>Room</th>
+            <th>Area of Malfunction</th><th>Malfunction</th><th>Model</th>
+            <th>Serial</th><th>Supplier</th><th>Recap Info</th><th>Code</th>
+            <th>Companies</th><th>Sent</th>
+            <th>Rejected Reason</th><th>Rejected TimeStamp</th><th>Rejected Company</th>
+          </tr></thead>
+          <tbody id="dataTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Table 2: Requests Sent -->
+    <div class="table-section">
+      <div class="table-title">Requests Sent to Companies</div>
+      <div class="table-responsive">
+        <table class="table table-bordered table-striped tableB">
+          <thead><tr>
+            <th>Response</th><th>Time (GMT)</th><th>Governorate</th><th>Center</th>
+            <th>Reporter Name</th><th>Mobile Number</th><th>Room</th>
+            <th>Area of Malfunction</th><th>Malfunction</th><th>Model</th>
+            <th>Serial</th><th>Supplier</th><th>Recap Info</th><th>Code</th>
+            <th>Company Name</th><th>TimeStamp Admin Sent</th><th>Admin Name</th>
+          </tr></thead>
+          <tbody id="dataTableB"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Table 3: Company Received -->
+    <div class="table-section">
+      <div class="table-title">Company Received Request</div>
+      <div class="table-responsive">
+        <table class="table table-bordered table-striped tableC">
+          <thead><tr>
+            <th>Response</th><th>Time (GMT)</th><th>Governorate</th><th>Center</th>
+            <th>Reporter Name</th><th>Mobile Number</th><th>Room</th>
+            <th>Area of Malfunction</th><th>Malfunction</th><th>Model</th>
+            <th>Serial</th><th>Supplier</th><th>Recap Info</th><th>Code</th>
+            <th>Company Name</th><th>TimeStamp Admin Sent</th><th>Admin Name</th>
+            <th>Company Received By</th><th>TimeStamp Company Received</th>
+          </tr></thead>
+          <tbody id="dataTableC"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Table 4: Technician Received -->
+    <div class="table-section">
+      <div class="table-title">Technician Received</div>
+      <div class="table-responsive">
+        <table class="table table-bordered table-striped tableD">
+          <thead><tr>
+            <th>Response</th><th>Time (GMT)</th><th>Governorate</th><th>Center</th>
+            <th>Reporter Name</th><th>Mobile Number</th><th>Room</th>
+            <th>Area of Malfunction</th><th>Malfunction</th><th>Model</th>
+            <th>Serial</th><th>Supplier</th><th>Recap Info</th><th>Code</th>
+            <th>Company Name</th><th>TimeStamp Admin Sent</th><th>Admin Name</th>
+            <th>Company Received By</th><th>TimeStamp Company Received</th>
+            <th>Technician Name</th><th>TimeStamp Technician Received</th>
+          </tr></thead>
+          <tbody id="dataTableD"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Table 5: Not Fixed -->
+    <div class="table-section">
+      <div class="table-title">Not Fixed Issues</div>
+      <div class="table-responsive">
+        <table class="table table-bordered table-striped tableE">
+          <thead><tr>
+            <th>Response</th><th>Time (GMT)</th><th>Governorate</th><th>Center</th>
+            <th>Reporter Name</th><th>Mobile Number</th><th>Room</th>
+            <th>Area of Malfunction</th><th>Malfunction</th><th>Model</th>
+            <th>Serial</th><th>Supplier</th><th>Recap Info</th><th>Code</th>
+            <th>Company Name</th><th>TimeStamp Admin Sent</th><th>Admin Name</th>
+            <th>Company Received By</th><th>TimeStamp Company Received</th>
+            <th>Technician Name</th><th>TimeStamp Technician Received</th>
+            <th>TimeStamp of Not Fixed</th><th>Reasons</th>
+          </tr></thead>
+          <tbody id="dataTableE"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Table 6: Fixed -->
+    <div class="table-section">
+      <div class="table-title">Fixed Issues</div>
+      <div class="table-responsive">
+        <table class="table table-bordered table-striped tableF">
+          <thead><tr>
+            <th>Response</th><th>Time (GMT)</th><th>Governorate</th><th>Center</th>
+            <th>Reporter Name</th><th>Mobile Number</th><th>Room</th>
+            <th>Area of Malfunction</th><th>Malfunction</th><th>Model</th>
+            <th>Serial</th><th>Supplier</th><th>Recap Info</th><th>Code</th>
+            <th>Company Name</th><th>TimeStamp Admin Sent</th><th>Admin Name</th>
+            <th>Company Received By</th><th>TimeStamp Company Received</th>
+            <th>Technician Name</th><th>TimeStamp Technician Received</th>
+            <th>TimeStamp of Not Fixed</th><th>Reasons</th>
+            <th>TimeStamp of Fixed</th><th>Fixed Notes</th><th>Invoice File</th>
+          </tr></thead>
+          <tbody id="dataTableF"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Table TML -->
+    <div class="table-section">
+      <div class="table-title">Teamleader Review</div>
+      <div class="table-responsive">
+        <table class="table table-bordered table-striped table-tml">
+          <thead><tr>
+            <th>Response</th><th>Time (GMT)</th><th>Governorate</th><th>Center</th>
+            <th>Reporter Name</th><th>Mobile Number</th><th>Room</th>
+            <th>Area of Malfunction</th><th>Malfunction</th><th>Model</th>
+            <th>Serial</th><th>Supplier</th><th>Recap Info</th><th>Code</th>
+            <th>Technician Status</th>
+            <th>TimeStamp of Not Fixed</th><th>Reasons</th>
+            <th>TimeStamp of Fixed</th><th>Fixed Notes</th>
+            <th>Teamleader Review</th><th>Review TimeStamp</th><th>Teamleader Name</th>
+          </tr></thead>
+          <tbody id="dataTableTML"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="logout-container">
+      <button id="logoutButton" class="btn btn-danger">Logout</button>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    let svUn = '';
+    let currentAdminName = '';
+    let notificationInterval = null;
+    let lastKnownTs = 0;
+
+    // ── Helper: parse date ─────────────────────────────────────────────────
+    function parseDate(str) {
+      if (!str) return null;
+      const m = String(str).match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4}) (\d{1,2}):(\d{1,2}):(\d{1,2})$/);
+      if (!m) return null;
+      const yyyy = m[3].length === 2 ? 2000 + +m[3] : +m[3];
+      return new Date(yyyy, +m[2]-1, +m[1], +m[4], +m[5], +m[6]);
+    }
+
+    function isOver24h(timeStr) {
+      const t = parseDate(timeStr);
+      if (!t) return false;
+      return (new Date() - t) / 3600000 > 24;
+    }
+
+    function isOver24hBetween(startStr, endStr) {
+      const s = parseDate(startStr);
+      if (!s) return false;
+      const e = endStr ? parseDate(endStr) : new Date();
+      if (!e) return false;
+      return (e - s) / 3600000 > 24;
+    }
+
+    // ── Helper: escape HTML ───────────────────────────────────────────────────
+    function esc(v) {
+      return String(v === undefined || v === null ? '' : v)
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    }
+
+    function escJson(row) {
+      return esc(JSON.stringify(row));
+    }
+
+    // ── Build simple TDs ──────────────────────────────────────────────────────
+    function buildTds(row, count, style) {
+      let s = '';
+      for (let i = 0; i < count; i++) {
+        s += `<td${style}>${esc(row[i])}</td>`;
+      }
+      return s;
+    }
+
+    // ── MASTER LOAD: 1 server call ────────────────────────────────────────────
+    function loadAllTables(governate, center) {
+      Swal.fire({
+        title: 'Loading data...',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        showConfirmButton: false,
+        didOpen: () => Swal.showLoading()
+      });
+
+      google.script.run
+        .withSuccessHandler(function(d) {
+          renderTable1(d.table1, d.companiesList, governate, center);
+          renderTable2(d.table2);
+          renderTable3(d.table3);
+          renderTable4(d.table4);
+          renderTable5(d.table5);
+          renderTable6(d.table6);
+          renderTableTML(d.tableTML);
+          Swal.close();
+
+          // Sync last Known As
+          google.script.run
+            .withSuccessHandler(r => { if (r.currentTs > 0) lastKnownTs = r.currentTs; })
+            .checkForNotification(0);
+        })
+        .withFailureHandler(function(err) {
+          Swal.fire('Error', 'Failed to load data: ' + err, 'error');
+        })
+        .getAllTableData(center);
+    }
+
+    // ── Render Table 1: Rejected ──────────────────────────────────────────────
+    function renderTable1(data, companiesList, governate, center) {
+      const tbody = $('#dataTable');
+      const rows = [];
+      data.forEach(row => {
+        const st = isOver24h(row[1]) ? ' style="color:red"' : '';
+        const opts = companiesList.map(c =>
+          `<option value="${esc(c)}" ${row[14]===c?'selected':''}>${esc(c)}</option>`
+        ).join('');
+        rows.push(`<tr>
+          ${buildTds(row, 14, st)}
+          <td${st}><select class="form-select company-dropdown" data-row='${escJson(row)}'>
+            <option value="">Select Company</option>${opts}
+          </select></td>
+          <td${st}><input type="checkbox" class="checkbox-lg sent" data-row='${escJson(row)}'></td>
+          <td${st}>${esc(row[16])}</td>
+          <td${st}>${esc(row[17])}</td>
+          <td${st}>${esc(row[18])}</td>
+        </tr>`);
+      });
+      tbody.html(rows.join(''));
+      attachDropdownHandlers(governate, center);
+      attachCheckboxSentHandlers(governate, center);
+    }
+
+    // ── Render Table 2: Sent ──────────────────────────────────────────────────
+    function renderTable2(data) {
+      const rows = data.map(row => {
+        const st = isOver24hBetween(row[1], row[15]) ? ' style="color:red"' : '';
+        return `<tr>${buildTds(row, 17, st)}</tr>`;
+      });
+      $('#dataTableB').html(rows.join(''));
+    }
+
+    // ── Render Table 3: Company Received ─────────────────────────────────────
+    function renderTable3(data) {
+      const rows = data.map(row => {
+        const st = isOver24hBetween(row[1], row[18]) ? ' style="color:red"' : '';
+        return `<tr>${buildTds(row, 19, st)}</tr>`;
+      });
+      $('#dataTableC').html(rows.join(''));
+    }
+
+    // ── Render Table 4: Tech Received ─────────────────────────────────────────
+    function renderTable4(data) {
+      const rows = data.map(row => {
+        const st = isOver24hBetween(row[1], row[20]) ? ' style="color:red"' : '';
+        return `<tr>${buildTds(row, 21, st)}</tr>`;
+      });
+      $('#dataTableD').html(rows.join(''));
+    }
+
+    // ── Render Table 5: Not Fixed ─────────────────────────────────────────────
+    function renderTable5(data) {
+      const rows = data.map(row => {
+        const st = isOver24hBetween(row[1], row[21]) ? ' style="color:red"' : '';
+        return `<tr>${buildTds(row, 23, st)}</tr>`;
+      });
+      $('#dataTableE').html(rows.join(''));
+    }
+
+    // ── Render Table 6: Fixed ─────────────────────────────────────────────────
+    function renderTable6(data) {
+      const rows = data.map(row => {
+        // const st = isOver24hBetween(row[1], row[21]) ? ' style="color:red"' : '';
+        // return `<tr>${buildTds(row, 23, st)}</tr>`;
+        const st = isOver24hBetween(row[1], row[23]) ? ' style="color:red"' : '';
+        const lastVal = row[25] || '';
+        const lastCell = lastVal.trim() !== ''
+          ? `<td${st}><a href="${esc(lastVal)}" target="_blank" style="color:#007bff;text-decoration:none;">View</a></td>`
+          : `<td${st}>-</td>`;
+        return `<tr>${buildTds(row, 25, st)}${lastCell}</tr>`;
+      });
+      $('#dataTableF').html(rows.join(''));
+    }
+
+    // ── Render Table TML ──────────────────────────────────────────────────────
+    function renderTableTML(data) {
+      const rows = data.map(row => {
+        const st = String(row[19] || '').toLowerCase().includes('not fixed')
+          ? ' style="color:red"' : '';
+        return `<tr>${buildTds(row, 22, st)}</tr>`;
+      });
+      $('#dataTableTML').html(rows.join(''));
+    }
+
+    // ── Dropdown & Checkbox handlers ──────────────────────────────────────────
+    function attachDropdownHandlers(governate, center) {
+      $('.company-dropdown').off('change').on('change', function() {
+        const row = JSON.parse($(this).attr('data-row'));
+        const newCompany = $(this).val();
+        const updatedRow = [...row.slice(0, 14), newCompany];
+        $(this).closest('tr').find('.sent').attr('data-row', JSON.stringify(updatedRow));
+      });
+    }
+
+    function attachCheckboxSentHandlers(governate, center) {
+      $('.sent').off('change').on('change', function() {
+        if (!$(this).is(':checked')) return;
+        const row = JSON.parse($(this).attr('data-row'));
+        const selectedCompany = $(this).closest('tr').find('.company-dropdown').val();
+        if (!selectedCompany) {
+          Swal.fire({ icon: 'warning', title: 'Please choose data first', confirmButtonText: 'OK' });
+          $(this).prop('checked', false);
+          return;
+        }
+        Swal.fire({ title: 'Submitting...', didOpen: () => Swal.showLoading() });
+        google.script.run
+          .withSuccessHandler(function() {
+            Swal.close();
+            loadAllTables(governate, center || '');
+          })
+          .withFailureHandler(err => alert('Error: ' + err))
+          .submitData([row], governate, currentAdminName, svUn);
+      });
+    }
+
+    // ── Notification checker ──────────────────────────────────────────────────
+    function startNotificationChecker() {
+      if (notificationInterval) clearInterval(notificationInterval);
+      notificationInterval = setInterval(() => {
+        google.script.run
+          .withSuccessHandler(result => {
+            if (result.currentTs && result.currentTs > 0) {
+              if (lastKnownTs === 0) {
+                lastKnownTs = result.currentTs;
+              } else if (result.hasNewData) {
+                lastKnownTs = result.currentTs;
+                showUpdateNotification();
+              }
+            }
+          })
+          .withFailureHandler(err => console.error('Notification check failed:', err))
+          .checkForNotification(lastKnownTs);
+      }, 10000);
+    }
+
+    function showUpdateNotification() {
+      if (Swal.isVisible()) return;
+      Swal.fire({
+        title: 'New data has been updated in database',
+        text: 'Refresh table now?',
+        icon: 'info',
+        confirmButtonText: 'Update',
+        allowOutsideClick: false,
+        allowEscapeKey: false
+      }).then(result => {
+        if (result.isConfirmed) {
+          loadAllTables($('#governateName').text(), $('#centersSelect').val() || '');
+        }
+      });
+    }
+
+    // ── Main ready ────────────────────────────────────────────────────────────
+    $(document).ready(function() {
+
+      $('#loginForm').on('submit', function(e) {
+        e.preventDefault();
+        const username = $('#username').val();
+        const password = $('#password').val();
+        svUn = username;
+        Swal.fire({ title: 'Logging in...', didOpen: () => Swal.showLoading() });
+        google.script.run
+          .withSuccessHandler(function(result) {
+            Swal.close();
+            if (result.success) {
+              Swal.fire({
+                title: 'Success', text: 'Login successful!', icon: 'success',
+                timer: 1500, timerProgressBar: true, showConfirmButton: false
+              }).then(() => {
+                $('#loginPage').addClass('d-none');
+                $('#tablePage').removeClass('d-none');
+                $('#governateName').text(result.governate);
+                $('#centerName').text('');
+                $('#adminName').text(result.adminName);
+                currentAdminName = result.adminName;
+
+                const select = $('#centersSelect');
+                select.empty().append('<option value="">Choose</option>');
+                (result.centers || []).forEach(c => {
+                  select.append(`<option value="${esc(c)}">${esc(c)}</option>`);
+                });
+
+                loadAllTables(result.governate, '');
+                startNotificationChecker();
+              });
+            } else {
+              Swal.fire('Error', 'Invalid username or password', 'error');
+            }
+          })
+          .withFailureHandler(err => {
+            Swal.close();
+            Swal.fire('Error', 'Login failed: ' + err, 'error');
+          })
+          .doLogin(username, password);
+      });
+
+      $('#centersSelect').on('change', function() {
+        const selectedCenter = $(this).val();
+        $('#centerName').text(selectedCenter || 'None');
+        loadAllTables($('#governateName').text(), selectedCenter);
+      });
+
+      $('#refreshButton').on('click', function() {
+        loadAllTables($('#governateName').text().trim(), $('#centersSelect').val() || '');
+      });
+
+      $('#logoutButton').on('click', function() {
+        if (notificationInterval) clearInterval(notificationInterval);
+        $('#tablePage').addClass('d-none');
+        $('#loginPage').removeClass('d-none');
+        $('#loginForm')[0].reset();
+        ['#dataTable','#dataTableB','#dataTableC','#dataTableD',
+         '#dataTableE','#dataTableF','#dataTableTML','#centersSelect']
+          .forEach(id => $(id).empty());
+        currentAdminName = '';
+        svUn = '';
+        lastKnownTs = 0;
+      });
+    });
+  </script>
+</body>
+</html>
