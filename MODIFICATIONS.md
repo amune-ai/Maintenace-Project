@@ -40,7 +40,14 @@ Applied to:
 - [x] hr-admin (read-only app — no submit/write path, so only the
       loop-merge half of the fix applied; no sleep/setTimeout existed
       here to remove)
-- [ ] technician
+- [x] technician (also had a *second*, worse instance of the same
+      anti-pattern: `getCompleteRowFromTable2` had `Utilities.sleep(3000)`
+      immediately followed by a `SpreadsheetApp.flush()` that already
+      did the real work — removed the redundant sleep. Runs on every
+      "mark as Fixed" action, which also generates a PDF, so this was
+      the slowest single action in the whole system: ~9s of pure
+      removable padding, stacked on top of Drive API PDF-generation
+      waits that were left alone)
 - [ ] dneqpwhtsp-search
 - [ ] team-leader
 
