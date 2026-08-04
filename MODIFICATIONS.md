@@ -16,3 +16,36 @@ Applied to:
 - [ ] project-4
 - [ ] project-5
 - [ ] project-6
+
+---
+
+## Cache-rebuild latency fix — 2026-08-05
+Every write action was blocked by a hardcoded `Utilities.sleep(3000)` in
+`rebuildDataCachePartial` (waiting for Sheets writes to "settle" before
+reading them back) plus a redundant client-side `setTimeout(..., 3000)`
+before reloading tables after submit — ~6s of dead time per action for
+no benefit, since `submitData`/`submitStatusA`/`submitStatusB` already
+block until the cache rebuild finishes. Replaced the sleep with
+`SpreadsheetApp.flush()` (forces the pending write instead of guessing),
+and removed the client-side delay entirely. Also merged the per-table
+filter loops in each project's `getAllTableData` (were 6-7 separate full
+passes over the cache array) into a single pass.
+
+Applied to:
+- [x] super-admin
+- [x] companies (also fixed: duplicate `esc()` in index.html where a
+      weaker second definition silently shadowed the safer one; and
+      `submitStatusA`/`submitStatusB` reading the full `D:D` column
+      instead of bounding to `getLastRow()`)
+- [ ] hr-admin
+- [ ] technician
+- [ ] dneqpwhtsp-search
+- [ ] team-leader
+
+Still open (deferred, needs a decision before implementing — see chat
+history 2026-08-05): stop rewriting the *entire* shared `DataCache`
+sheet on every partial write (needs a per-source-sheet block index,
+should land in all 6 apps at once, not incrementally); archiving old
+closed rows out of `DataCache` (needs a retention policy — the
+Teamleader Review table intentionally shows all Fixed/Not-Fixed rows,
+including already-reviewed ones, as a history view).
