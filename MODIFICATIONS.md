@@ -37,7 +37,9 @@ Applied to:
       weaker second definition silently shadowed the safer one; and
       `submitStatusA`/`submitStatusB` reading the full `D:D` column
       instead of bounding to `getLastRow()`)
-- [ ] hr-admin
+- [x] hr-admin (read-only app — no submit/write path, so only the
+      loop-merge half of the fix applied; no sleep/setTimeout existed
+      here to remove)
 - [ ] technician
 - [ ] dneqpwhtsp-search
 - [ ] team-leader
