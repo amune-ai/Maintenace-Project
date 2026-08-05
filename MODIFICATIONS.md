@@ -57,7 +57,14 @@ Applied to:
       already-defined `TARGET_SHEET_MAP` and has drifted from it — its
       fallback for an unmatched region, `'AsimahSubmited'`, doesn't match
       any other project's `'CapitalSubmited'` fallback)
-- [ ] team-leader
+- [x] team-leader (bound script, only 2 tables so the loop-merge was a
+      smaller win than elsewhere, but applied for consistency. Caught
+      and preserved a real discrepancy while merging: table1's center
+      filter requires an exact match with no fallback, table2 treats a
+      falsy center as "match all" — kept both conditions exactly as
+      they were instead of collapsing them to one)
+
+All 6 projects done as of 2026-08-05. This checklist item is closed.
 
 Still open (deferred, needs a decision before implementing — see chat
 history 2026-08-05): stop rewriting the *entire* shared `DataCache`
