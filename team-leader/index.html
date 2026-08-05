@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Team Leader Login</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+  <style>
+    body { background-color: #f8f9fa; }
+    .login-container { max-width: 400px; margin: 100px auto; }
+    .table-container { margin: 20px 0; width: 100%; padding: 0 15px; }
+    .checkbox-lg { transform: scale(2); }
+    .header-info {
+      margin-bottom: 20px;
+      border: 2px solid #007bff;
+      border-radius: 10px;
+      padding: 15px;
+      background-color: #ffffff;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      max-width: 100%;
+    }
+    .table th {
+      background-color: #007bff;
+      color: white;
+      text-align: center;
+      vertical-align: middle;
+      padding: 12px;
+      line-height: 1.5;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .table-fixed th { background-color: #cfe2f3; color: black; }
+    .table-pending td:nth-child(18) { text-align: center; vertical-align: middle; }
+    .table-pending td:nth-child(19) { text-align: center; vertical-align: middle; }
+    .table-pending thead tr th:nth-child(17) { background-color: #28a745; color: white; }
+    .table-pending td:nth-child(17) {
+      width: 280px !important; min-width: 250px !important; max-width: 320px;
+      white-space: normal !important; word-break: break-word;
+      padding: 10px 12px !important; line-height: 1.5; text-align: left !important;
+    }
+    .table-pending thead tr th:nth-child(18) { background-color: #28a745; color: white; }
+    .table-pending thead tr th:nth-child(19) { background-color: #dc3545; color: white; }
+    .table-fixed thead tr th:nth-child(16) { background-color: #dc3545; color: white; }
+    .table-fixed thead tr th:nth-child(17) { background-color: #dc3545; color: white; }
+    .table-fixed thead tr th:nth-child(18) { background-color: #28a745; color: white; }
+    .table-fixed thead tr th:nth-child(19) { background-color: #28a745; color: white; }
+    .table-fixed td:nth-child(19) {
+      width: 280px !important; min-width: 250px !important; max-width: 320px;
+      white-space: normal !important; word-break: break-word;
+      padding: 10px 12px !important; line-height: 1.5; text-align: left !important;
+    }
+
+    .table-fixed td:last-child {text-align: center;}
+
+    .table-pending th:nth-child(13), .table-pending td:nth-child(13),
+    .table-fixed th:nth-child(13), .table-fixed td:nth-child(13) { display: none !important; }
+    .header-table { width: 100%; max-width: 500px; border-collapse: collapse; }
+    .header-table td { padding: 5px; }
+    .header-table td:nth-child(1) { width: 120px; font-weight: bold; }
+    .header-table td:nth-child(2) { width: 20px; text-align: center; }
+    .table-section { margin-bottom: 40px; }
+    .table-title { font-size: 1.2em; font-weight: bold; margin-bottom: 10px; }
+    .logout-container { text-align: end; margin-top: 20px; }
+    .table-responsive { max-height: 500px; overflow-y: auto; display: block; }
+    #refreshButton {
+      background-color: #f0c14b; border: 2px solid #c38f00;
+      color: #212529; font-weight: bold; padding: 8px 20px;
+      border-radius: 6px; transition: all 0.2s ease;
+    }
+    #refreshButton:hover {
+      background-color: #e6b800; border-color: #a67c00;
+      transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Login Page -->
+  <div id="loginPage" class="login-container">
+    <div class="card shadow">
+      <div class="card-body">
+        <center><img src="https://i.ibb.co/VRWC6dV/Mo-H-Logo-1.png" alt="MoH-Logo" border="0"
+          style="max-width:100%;height:auto;display:block;margin:auto;"></center>
+        <br><br>
+        <h3 class="card-title text-center mb-4">Team Leader Login</h3>
+        <form id="loginForm">
+          <div class="mb-3">
+            <label for="username" class="form-label">Username</label>
+            <input type="text" class="form-control" id="username" required autocomplete="off">
+          </div>
+          <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" class="form-control" id="password" required>
+          </div>
+          <button type="submit" class="btn btn-primary w-100">Login</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table Page -->
+  <div id="tablePage" class="table-container d-none">
+    <center><img src="https://i.ibb.co/VRWC6dV/Mo-H-Logo-1.png" alt="MoH-Logo" border="0"
+      style="max-width:100%;height:auto;display:block;margin:auto;"></center>
+    <div class="header-info col-md-3">
+      <table class="header-table">
+        <tr><td>Governorate</td><td>:</td><td id="governateName"></td></tr>
+        <tr><td>Center</td><td>:</td><td id="centerName"></td></tr>
+        <tr><td>TL Name</td><td>:</td><td id="tlName"></td></tr>
+      </table>
+    </div>
+
+    <!-- Table 1: Pending -->
+    <div class="table-section">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="table-title">Pending requests</div>
+        <button id="refreshButton" class="btn btn-warning text-dark fw-bold px-4">
+          <i class="bi bi-arrow-clockwise me-2"></i>Refresh
+        </button>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-bordered table-striped table-pending">
+          <thead><tr>
+            <th>Response</th><th>Time (GMT)</th><th>Governorate</th><th>Center</th>
+            <th>Reporter Name</th><th>Mobile Number</th><th>Room</th>
+            <th>Area of Malfunction</th><th>Malfunction</th><th>Model</th>
+            <th>Serial</th><th>Supplier</th><th>Recap Info</th><th>Code</th>
+            <th>Technician Status</th><th>Reason</th><th>Fixed Notes</th>
+            <th>Fixed</th><th>Not Fixed</th>
+          </tr></thead>
+          <tbody id="dataTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Table 2: Teamleader Review -->
+    <div class="table-section">
+      <div class="table-title">Teamleader Review</div>
+      <div class="table-responsive">
+        <table class="table table-bordered table-striped table-fixed">
+          <thead><tr>
+            <th>Response</th><th>Time (GMT)</th><th>Governorate</th><th>Center</th>
+            <th>Reporter Name</th><th>Mobile Number</th><th>Room</th>
+            <th>Area of Malfunction</th><th>Malfunction</th><th>Model</th>
+            <th>Serial</th><th>Supplier</th><th>Recap Info</th><th>Code</th>
+            <th>Technician Status</th>
+            <th>TimeStamp of Not Fixed</th><th>Reasons</th>
+            <th>TimeStamp of Fixed</th><th>Fixed Notes</th>
+            <th>Teamleader Review</th><th>Review TimeStamp</th><th>Teamleader Name</th><th>Invoice File</th>
+          </tr></thead>
+          <tbody id="dataTable2"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="logout-container">
+      <button id="logoutButton" class="btn btn-danger">Logout</button>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    let currentTlName  = '';
+    let currentCenter  = '';
+    let currentGoverate = '';
+    let notificationInterval = null;
+    let lastKnownTs = 0;
+
+    // ── Helper ────────────────────────────────────────────────────────────────
+    function parseDate(str) {
+      if (!str) return null;
+      const m = String(str).match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4}) (\d{1,2}):(\d{1,2}):(\d{1,2})$/);
+      if (!m) return null;
+      const yyyy = m[3].length === 2 ? 2000 + +m[3] : +m[3];
+      return new Date(yyyy, +m[2]-1, +m[1], +m[4], +m[5], +m[6]);
+    }
+
+    function isOver24h(timeStr) {
+      const t = parseDate(timeStr);
+      if (!t) return false;
+      return (new Date() - t) / 3600000 > 24;
+    }
+
+    function esc(v) {
+      return String(v === undefined || v === null ? '' : v)
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    }
+
+    function buildTds(row, count, style) {
+      let s = '';
+      for (let i = 0; i < count; i++) {
+        s += `<td${style}>${esc(row[i])}</td>`;
+      }
+      return s;
+    }
+
+    // ── MASTER LOAD: 1 server call ────────────────────────────────────────────
+    function loadAllTables(governate, center) {
+      Swal.fire({
+        title: 'Loading data...',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        showConfirmButton: false,
+        didOpen: () => Swal.showLoading()
+      });
+
+      google.script.run
+        .withSuccessHandler(function(d) {
+          renderTable1(d.table1, governate, center);
+          renderTable2(d.table2);
+          Swal.close();
+
+          google.script.run
+            .withSuccessHandler(r => { if (r.currentTs > 0) lastKnownTs = r.currentTs; })
+            .checkForNotification(0);
+        })
+        .withFailureHandler(function(err) {
+          Swal.fire('Error', 'Failed to load data: ' + err, 'error');
+        })
+        .getAllTableData(governate, center);
+    }
+
+    // ── Render Table 1: Pending ───────────────────────────────────────────────
+    function renderTable1(data, governate, center) {
+      const rows = [];
+      data.forEach(row => {
+        const st = isOver24h(row[1]) ? ' style="color:red"' : '';
+        const techStatus = String(row[14] || '').trim();
+        const isDisabled  = (!techStatus || techStatus === '' || techStatus === 'pending' || techStatus === 'Not Fixed') ? 'disabled' : '';
+        const isNotFixedDisabled = (!techStatus || techStatus === '' ||
+          techStatus === 'Not Fixed' || techStatus === 'pending') ? 'disabled' : '';
+
+        rows.push(`<tr>
+          ${buildTds(row, 17, st)}
+          <td${st}><input type="checkbox" class="checkbox-lg fixed"
+            data-row='${esc(JSON.stringify(row))}' ${isDisabled}></td>
+          <td${st}><input type="checkbox" class="checkbox-lg not-fixed"
+            data-row='${esc(JSON.stringify(row))}' ${isNotFixedDisabled}></td>
+        </tr>`);
+      });
+      $('#dataTable').html(rows.join(''));
+      attachCheckboxHandlers(governate, center);
+    }
+
+    // ── Render Table 2: Teamleader Review ────────────────────────────────────
+    function renderTable2(data) {
+      const rows = data.map(row => {
+        const isNotFixed = String(row[19] || '').toLowerCase().includes('not fixed');
+        const st = isNotFixed ? ' style="color:red"' : '';
+
+        const lastVal = row[22] || '';
+        const lastCell = lastVal.trim() !== ''
+          ? `<td${st}><a href="${esc(lastVal)}" target="_blank" style="color:#007bff;text-decoration:none;">View</a></td>`
+          : `<td${st}>-</td>`;
+        return `<tr>${buildTds(row, 22, st)}${lastCell}</tr>`;
+
+      });
+      $('#dataTable2').html(rows.join(''));
+    }
+
+    // ── Checkbox handlers ─────────────────────────────────────────────────────
+    function attachCheckboxHandlers(governate, center) {
+      $('.fixed, .not-fixed').off('change').on('change', function() {
+        const $this = $(this);
+        const isFixed = $this.hasClass('fixed');
+        if (!$this.is(':checked')) return;
+
+        $this.closest('tr').find(isFixed ? '.not-fixed' : '.fixed').prop('checked', false);
+
+        const rowData = JSON.parse($this.attr('data-row'));
+        rowData[14] = isFixed ? 'Fixed' : 'Not Fixed';
+
+        Swal.fire({ title: 'Submitting...', didOpen: () => Swal.showLoading() });
+        google.script.run
+          .withSuccessHandler(function() {
+            Swal.fire({
+              title: 'Success', text: 'Data sent', icon: 'success',
+              timer: 1500, timerProgressBar: true, showConfirmButton: false
+            });
+            loadAllTables(governate, center);
+          })
+          .withFailureHandler(err => Swal.fire('Error', 'Submission failed: ' + err, 'error'))
+          .submitData([rowData], governate, currentTlName);
+      });
+    }
+
+    // ── Notification ──────────────────────────────────────────────────────────
+    function startNotificationChecker() {
+      if (notificationInterval) clearInterval(notificationInterval);
+      notificationInterval = setInterval(() => {
+        google.script.run
+          .withSuccessHandler(result => {
+            if (result.currentTs && result.currentTs > 0) {
+              if (lastKnownTs === 0) {
+                lastKnownTs = result.currentTs;
+              } else if (result.hasNewData) {
+                lastKnownTs = result.currentTs;
+                showUpdateNotification();
+              }
+            }
+          })
+          .withFailureHandler(err => console.error('Notification check failed:', err))
+          .checkForNotification(lastKnownTs);
+      }, 10000);
+    }
+
+    function showUpdateNotification() {
+      if (Swal.isVisible()) return;
+      Swal.fire({
+        title: 'New data has been updated in database',
+        text: 'Refresh table now?',
+        icon: 'info',
+        confirmButtonText: 'Update',
+        allowOutsideClick: false,
+        allowEscapeKey: false
+      }).then(result => {
+        if (result.isConfirmed) {
+          loadAllTables(currentGoverate, currentCenter);
+        }
+      });
+    }
+
+    // ── Main ready ────────────────────────────────────────────────────────────
+    $(document).ready(function() {
+
+      $('#loginForm').on('submit', function(e) {
+        e.preventDefault();
+        const username = $('#username').val();
+        const password = $('#password').val();
+        Swal.fire({ title: 'Logging in...', didOpen: () => Swal.showLoading() });
+        google.script.run
+          .withSuccessHandler(function(result) {
+            Swal.close();
+            if (result.success) {
+              Swal.fire({
+                title: 'Success', text: 'Login successful!', icon: 'success',
+                timer: 1500, timerProgressBar: true, showConfirmButton: false
+              }).then(() => {
+                $('#loginPage').addClass('d-none');
+                $('#tablePage').removeClass('d-none');
+                $('#governateName').text(result.governate);
+                $('#centerName').text(result.center);
+                $('#tlName').text(result.tlName);
+                currentTlName  = result.tlName;
+                currentCenter  = result.center;
+                currentGoverate = result.governate;
+
+                loadAllTables(result.governate, result.center);
+                startNotificationChecker();
+              });
+            } else {
+              Swal.fire('Error', 'Invalid username or password', 'error');
+            }
+          })
+          .withFailureHandler(err => {
+            Swal.close();
+            Swal.fire('Error', 'Login failed: ' + err, 'error');
+          })
+          .doLogin(username, password);
+      });
+
+      $('#refreshButton').on('click', function() {
+        loadAllTables(currentGoverate, currentCenter);
+      });
+
+      $('#logoutButton').on('click', function() {
+        if (notificationInterval) clearInterval(notificationInterval);
+        $('#tablePage').addClass('d-none');
+        $('#loginPage').removeClass('d-none');
+        $('#loginForm')[0].reset();
+        $('#dataTable').empty();
+        $('#dataTable2').empty();
+        currentTlName  = '';
+        currentCenter  = '';
+        currentGoverate = '';
+        lastKnownTs = 0;
+      });
+    });
+  </script>
+</body>
+</html>
