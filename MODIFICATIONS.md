@@ -48,7 +48,15 @@ Applied to:
       the slowest single action in the whole system: ~9s of pure
       removable padding, stacked on top of Drive API PDF-generation
       waits that were left alone)
-- [ ] dneqpwhtsp-search
+- [x] dneqpwhtsp-search (public intake form, not a table viewer — no
+      loop-merge or client-side setTimeout to fix, only the sleep→flush
+      swap applied. Two bigger issues flagged, not fixed: the response-code
+      sequence generator scans the *entire* submission history on every
+      submit, growing slower over time; and `submitForm` hand-rolls a
+      44-line if/else region-to-sheet mapping that duplicates the
+      already-defined `TARGET_SHEET_MAP` and has drifted from it — its
+      fallback for an unmatched region, `'AsimahSubmited'`, doesn't match
+      any other project's `'CapitalSubmited'` fallback)
 - [ ] team-leader
 
 Still open (deferred, needs a decision before implementing — see chat
