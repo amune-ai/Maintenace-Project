@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maintenance Reports</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- SweetAlert2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+</head>
+<body class="container mt-5">
+  <center><img src="https://i.ibb.co/VRWC6dV/Mo-H-Logo-1.png" alt="MoH-Logo" border="0" style="max-width:100%; height:auto; display: block;
+  margin-left: auto;
+  margin-right: auto;"></center>
+  <br>
+  <br>
+    <h2 class="text-center mb-4">Maintenance Reports</h2>
+    <form id="myForm" class="border p-4 rounded bg-light">
+        <div class="mb-3">
+            <label for="region" class="form-label" style="color: #000080"><b>Region</b></label>
+            <select id="region" class="form-select">
+                <option value="">Select Region</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="clinic" class="form-label" style="color: #000080"><b>Clinics</b></label>
+            <select id="clinic" class="form-select" disabled>
+                <option value="">Select Clinic</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="room" class="form-label" style="color: #000080"><b>Room</b></label>
+            <select id="room" class="form-select" disabled>
+                <option value="">Select Room</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="name" class="form-label" style="color: #000080"><b>Name</b></label>
+            <select id="name" class="form-select" disabled>
+                <option value="">Select Name</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="manufacturer" class="form-label" style="color: #000080"><b>Manufacturer</b></label>
+            <select id="manufacturer" class="form-select" disabled>
+                <option value="">Select Manufacturer</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="model" class="form-label" style="color: #000080"><b>Model</b></label>
+            <select id="model" class="form-select" disabled>
+                <option value="">Select Model</option>
+            </select>
+        </div>
+        <div class="mb-3 d-none" id="serialDiv">
+            <label for="serial" class="form-label" style="color: #000080"><b>Serial</b></label>
+            <input type="text" id="serial" class="form-control" readonly>
+        </div>
+        <div class="mb-3 d-none" id="supplierDiv">
+            <label for="supplier" class="form-label" style="color: #000080"><b>Supplier</b></label>
+            <input type="text" id="supplier" class="form-control" readonly>
+        </div>
+        <div class="mb-3">
+            <label for="reporterName" class="form-label" style="color: #34a853"><b>Reporter Name</b></label>
+            <input type="text" id="reporterName" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label for="phone" class="form-label" style="color: #34a853"><b>Phone Number (8 digits only)</b></label>
+            <input type="number" id="phone" class="form-control" pattern="\d{8}" maxlength="8" required>
+        </div>
+        <div class="mb-3">
+            <label for="additionalField" class="form-label" style="color: #a61c00"><b>Malfunction</b></label>
+            <select id="additionalField" class="form-select" required>
+                <option value="">Select Malfunction</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    let data = [];
+    let additionalOptions = [];
+    let isDataLoaded = false; // New flag to know data is ready
+
+    const selectLabels = {
+        'region': 'Region',
+        'clinic': 'Clinic',
+        'room': 'Room',
+        'name': 'Name',
+        'manufacturer': 'Manufacturer',
+        'model': 'Model',
+        'additionalField': 'Malfunction'
+    };
+
+    // all dropdown dependent
+    const dependentSelects = ['clinic', 'room', 'name', 'manufacturer', 'model'];
+
+    function populateDropdown(selectId, values) {
+        const select = document.getElementById(selectId);
+        if (!select) return;
+
+        select.innerHTML = `<option value="">Select ${selectLabels[selectId] || selectId}</option>`;
+
+        values.forEach(value => {
+            const option = document.createElement('option');
+            option.value = value;
+            option.textContent = value;
+            select.appendChild(option);
+        });
+
+        // Only enable if there is an option and not additionalField
+        select.disabled = (values.length === 0 && selectId !== 'additionalField');
+    }
+
+    function getUniqueValues(index, filters) {
+        return [...new Set(
+            data
+                .filter(row => filters.every((val, i) => !val || row[i] === val))
+                .map(row => row[index])
+                .filter(val => val !== '')
+        )].sort();
+    }
+
+    function updateSerialAndSupplier() {
+        const name = document.getElementById('name').value;
+        const serialDiv = document.getElementById('serialDiv');
+        const supplierDiv = document.getElementById('supplierDiv');
+        const serialInput = document.getElementById('serial');
+        const supplierInput = document.getElementById('supplier');
+
+        if (name) {
+            serialDiv.classList.remove('d-none');
+            supplierDiv.classList.remove('d-none');
+        } else {
+            serialDiv.classList.add('d-none');
+            supplierDiv.classList.add('d-none');
+        }
+
+        serialInput.value = '';
+        supplierInput.value = '';
+
+        if (name && isDataLoaded) {
+            const filters = ['region', 'clinic', 'room', 'name', 'manufacturer', 'model']
+                .map(id => document.getElementById(id).value);
+            const matchingRow = data.find(row =>
+                row.slice(0, 6).every((val, i) => !filters[i] || val === filters[i])
+            );
+            if (matchingRow) {
+                serialInput.value = matchingRow[6] || '';
+                supplierInput.value = matchingRow[7] || '';
+            }
+        }
+    }
+
+    function handleChange(currentIndex) {
+        // Do nothing if the data has not loaded
+        if (!isDataLoaded) return;
+
+        const selects = ['region', 'clinic', 'room', 'name', 'manufacturer', 'model'];
+        const filters = selects.slice(0, currentIndex).map(id => document.getElementById(id).value);
+
+        if (currentIndex < selects.length && filters[currentIndex - 1]) {
+            const values = getUniqueValues(currentIndex, filters);
+            populateDropdown(selects[currentIndex], values);
+        }
+
+        // Reset dropdown after
+        for (let i = currentIndex + 1; i < selects.length; i++) {
+            const select = document.getElementById(selects[i]);
+            select.innerHTML = `<option value="">Select ${selectLabels[selects[i]]}</option>`;
+            select.disabled = true;
+        }
+
+        if (currentIndex >= 3) {
+            updateSerialAndSupplier();
+        }
+    }
+
+    // Attach both 'change' and 'input' for better mobile compatibility
+    function attachEvents() {
+        const selects = ['region', 'clinic', 'room', 'name', 'manufacturer', 'model'];
+        selects.forEach((id, index) => {
+            const el = document.getElementById(id);
+            if (el) {
+                // Use both events for more reliability on mobile
+                el.addEventListener('change', () => handleChange(index + 1));
+                el.addEventListener('input', () => handleChange(index + 1));
+            }
+        });
+    }
+
+    document.getElementById('myForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const phone = document.getElementById('phone').value;
+        if (phone.length !== 8 || isNaN(phone)) {
+            Swal.fire('Error', 'Phone number must be exactly 8 digits.', 'error');
+            return;
+        }
+
+        Swal.fire({
+            title: 'Submitting...',
+            allowOutsideClick: false,
+            didOpen: () => Swal.showLoading()
+        });
+
+        const formData = {
+            region: document.getElementById('region').value,
+            clinic: document.getElementById('clinic').value,
+            room: document.getElementById('room').value,
+            name: document.getElementById('name').value,
+            manufacturer: document.getElementById('manufacturer').value,
+            model: document.getElementById('model').value,
+            serial: document.getElementById('serial').value,
+            supplier: document.getElementById('supplier').value,
+            reporterName: document.getElementById('reporterName').value,
+            phone: phone,
+            additionalField: document.getElementById('additionalField').value
+        };
+
+        google.script.run
+            .withSuccessHandler(() => {
+                Swal.fire('Success', 'Form submitted successfully!', 'success');
+                document.getElementById('myForm').reset();
+                handleChange(0);
+                document.getElementById('serialDiv').classList.add('d-none');
+                document.getElementById('supplierDiv').classList.add('d-none');
+                populateDropdown('additionalField', additionalOptions);
+            })
+            .withFailureHandler(err => {
+                Swal.fire('Error', 'Failed to submit: ' + (err.message || 'Unknown error'), 'error');
+            })
+            .submitForm(formData);
+    });
+
+    // Load data + show loading
+    Swal.fire({
+        title: 'Loading data...',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+    });
+
+    google.script.run.withSuccessHandler(function(fetchedData) {
+        data = fetchedData.data || [];
+        additionalOptions = fetchedData.additionalOptions || [];
+
+        const regions = getUniqueValues(0, []);
+        populateDropdown('region', regions);
+        populateDropdown('additionalField', additionalOptions);
+
+        // Enable region after data loaded
+        document.getElementById('region').disabled = false;
+
+        // Init dependent dropdowns
+        dependentSelects.forEach(id => {
+            const select = document.getElementById(id);
+            select.innerHTML = `<option value="">Select ${selectLabels[id]}</option>`;
+            select.disabled = true;
+        });
+
+        isDataLoaded = true;
+        attachEvents(); // Install event after data is ready
+
+        Swal.close(); // Close loading after completion
+
+    }).withFailureHandler(err => {
+        Swal.fire('Error', 'Failed to load data: ' + (err.message || 'Unknown'), 'error');
+    }).getData();
+</script>
+</body>
+</html>
