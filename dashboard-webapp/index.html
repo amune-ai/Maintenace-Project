@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+  <style>
+    :root {
+      --primary-color: #0a2a5e;
+      --primary-light: #1a4a8e;
+      --secondary-color: #6c757d;
+      --success-color: #28a745;
+      --light-bg: #f0f4fa;
+      --dark-text: #212529;
+      --border-color: #dee2e6;
+      --card-bg: #ffffff;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--light-bg);
+      color: var(--dark-text);
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    body.dark-mode {
+      --light-bg: #121828;
+      --dark-text: #e0e0e0;
+      --border-color: #2e3a50;
+      --card-bg: #1e2a3a;
+      background-color: var(--light-bg);
+      color: var(--dark-text);
+    }
+
+    /* ── Login ── */
+    .login-container { max-width: 450px; margin: 80px auto; padding: 0 15px; }
+    .login-card { box-shadow: 0 4px 20px rgba(10,42,94,0.15); border-radius: 14px; border: none; }
+    body.dark-mode .login-card { background: var(--card-bg); }
+    .login-card .card-body { padding: 40px; }
+    .login-card .form-control {
+      border-radius: 8px; border: 1px solid var(--border-color);
+      padding: 12px 15px; margin-bottom: 15px; transition: border-color 0.3s;
+    }
+    body.dark-mode .login-card .form-control { background: #253040; color: #e0e0e0; border-color: #2e3a50; }
+    .login-card .form-control:focus { border-color: var(--primary-color); box-shadow: 0 0 0 0.2rem rgba(10,42,94,0.25); }
+    .login-btn { border-radius: 8px; padding: 12px; font-weight: 600; width: 100%; background: var(--primary-color); border-color: var(--primary-color); }
+    .login-btn:hover { background: var(--primary-light); border-color: var(--primary-light); }
+
+    /* ── Navbar ── */
+    .navbar-custom {
+      background: linear-gradient(135deg, #0a2a5e 0%, #0d3875 100%);
+      box-shadow: 0 2px 12px rgba(10,42,94,0.35);
+    }
+    body.dark-mode .navbar-custom { background: linear-gradient(135deg, #071833 0%, #0a2a5e 100%); }
+    .navbar-brand { font-weight: 700; font-size: 1.3rem; color: white !important; }
+    .user-info { display: flex; align-items: center; gap: 16px; }
+    .user-name { color: rgba(255,255,255,0.9); font-weight: 500; }
+    .theme-toggle {
+      background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.6);
+      border-radius: 50%; width: 42px; height: 42px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem; transition: all 0.3s ease;
+    }
+    .theme-toggle:hover { background: rgba(255,255,255,0.25); }
+    .logout-btn {
+      background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.6);
+      color: white; font-weight: 600; border-radius: 8px; padding: 7px 18px;
+      cursor: pointer; transition: all 0.3s ease;
+    }
+    .logout-btn:hover { background: rgba(255,255,255,0.25); color: white; text-decoration: none; }
+
+    /* ── Filter Bar ── */
+    .filter-bar {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 18px 24px;
+      box-shadow: 0 2px 8px rgba(10,42,94,0.08);
+      margin-bottom: 28px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      gap: 14px;
+    }
+    .filter-bar label { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--secondary-color); margin-bottom: 4px; display: block; }
+    .filter-bar select {
+      border-radius: 8px; border: 1px solid var(--border-color); padding: 9px 14px;
+      font-size: 0.9rem; min-width: 160px; background: var(--card-bg); color: var(--dark-text);
+    }
+    body.dark-mode .filter-bar select { background: #253040; border-color: #2e3a50; }
+    .filter-bar select:focus { border-color: var(--primary-color); box-shadow: 0 0 0 0.15rem rgba(10,42,94,0.2); outline: none; }
+    .filter-group { display: flex; flex-direction: column; }
+    .btn-apply {
+      background: var(--primary-color); color: white; border: none;
+      border-radius: 8px; padding: 9px 22px; font-weight: 600; cursor: pointer;
+      transition: background 0.2s; font-size: 0.9rem; align-self: flex-end;
+    }
+    .btn-apply:hover { background: var(--primary-light); }
+    .btn-reset {
+      background: transparent; color: var(--secondary-color);
+      border: 1.5px solid var(--border-color); border-radius: 8px;
+      padding: 9px 14px; cursor: pointer; font-size: 1.1rem; transition: all 0.2s;
+      align-self: flex-end; line-height: 1;
+    }
+    .btn-reset:hover { border-color: #dc3545; color: #dc3545; background: rgba(220,53,69,0.06); }
+
+    /* ── Dashboard Layout ── */
+    .dashboard-container { padding: 28px 20px; max-width: 1400px; margin: 0 auto; }
+    .dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .dashboard-header h1 { font-weight: 700; margin: 0; font-size: 1.6rem; }
+    .update-btn {
+      background: linear-gradient(135deg, var(--success-color) 0%, #20c997 100%);
+      border: none; color: white; padding: 10px 22px; border-radius: 8px;
+      font-weight: 600; cursor: pointer; transition: transform 0.2s;
+    }
+    .update-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(40,167,69,0.3); }
+
+    /* ── Stat Card ── */
+    .stat-card {
+      background: var(--card-bg); border-radius: 12px; padding: 24px;
+      box-shadow: 0 2px 10px rgba(10,42,94,0.08); margin-bottom: 24px;
+      border-left: 4px solid var(--primary-color); transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .stat-card:hover { transform: translateY(-4px); box-shadow: 0 8px 22px rgba(10,42,94,0.14); }
+    .stat-number { font-size: 2.5rem; font-weight: 700; color: orange; margin: 8px 0; }
+    .stat-label { font-size: 0.85rem; color: var(--secondary-color); text-transform: uppercase; letter-spacing: 1px; }
+
+    /* ── Chart Card ── */
+    .chart-card {
+      background: var(--card-bg); border-radius: 12px; padding: 24px;
+      box-shadow: 0 2px 10px rgba(10,42,94,0.08); margin-bottom: 24px;
+    }
+    .chart-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 18px; color: var(--dark-text); }
+    .chart-container { position: relative; height: 300px; margin-bottom: 10px; }
+
+    /* ── Dashboard Grid ── */
+    .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-bottom: 24px; }
+    .dashboard-grid-full { grid-column: 1 / -1; }
+
+    /* ── Data Table ── */
+    .table-card {
+      background: var(--card-bg); border-radius: 12px; padding: 24px;
+      box-shadow: 0 2px 10px rgba(10,42,94,0.08); margin-bottom: 24px;
+    }
+    .table-card .chart-title { margin-bottom: 14px; }
+    .table-wrapper { overflow-x: auto; border-radius: 8px; }
+    #dataTable {
+      width: 100%; border-collapse: collapse; font-size: 0.85rem;
+      white-space: nowrap;
+    }
+    #dataTable thead tr {
+      background: linear-gradient(135deg, #0a2a5e 0%, #0d3875 100%);
+      color: white;
+    }
+    #dataTable thead th {
+      padding: 12px 14px; font-weight: 600; letter-spacing: 0.4px;
+      border: none; text-align: left;
+    }
+    #dataTable tbody tr { border-bottom: 1px solid var(--border-color); transition: background 0.15s; }
+    #dataTable tbody tr:hover { background: rgba(10,42,94,0.05); }
+    body.dark-mode #dataTable tbody tr:hover { background: rgba(255,255,255,0.04); }
+    #dataTable tbody td { padding: 10px 14px; color: var(--dark-text); }
+    #dataTable tbody td:empty::before { content: '—'; color: #aaa; }
+    .table-empty { text-align: center; padding: 30px; color: var(--secondary-color); font-style: italic; }
+    .table-pagination { display: flex; justify-content: space-between; align-items: center; margin-top: 14px; font-size: 0.85rem; flex-wrap: wrap; gap: 8px; }
+    .pagination-btns { display: flex; gap: 6px; }
+    .page-btn {
+      padding: 5px 12px; border-radius: 6px; border: 1.5px solid var(--border-color);
+      background: var(--card-bg); color: var(--dark-text); cursor: pointer; font-size: 0.82rem; transition: all 0.2s;
+    }
+    .page-btn:hover:not(:disabled) { background: var(--primary-color); color: white; border-color: var(--primary-color); }
+    .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .page-btn.active { background: var(--primary-color); color: white; border-color: var(--primary-color); }
+
+    /* ── Spinner ── */
+    .spinner {
+      display: inline-block; width: 18px; height: 18px;
+      border: 3px solid rgba(255,255,255,0.3); border-top-color: white;
+      border-radius: 50%; animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .dashboard-grid { grid-template-columns: 1fr; }
+      .stat-number { font-size: 2rem; }
+      .dashboard-header { flex-direction: column; gap: 12px; align-items: flex-start; }
+      .filter-bar { flex-direction: column; }
+      .filter-bar select { min-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════ LOGIN PAGE ═══════════════ -->
+<div id="loginPage">
+  <div class="login-container">
+    <div class="login-card card">
+      <div class="card-body">
+        <div style="text-align:center;margin-bottom:28px;">
+          <h3 style="color:var(--primary-color);font-weight:700;">📊 Dashboard</h3>
+          <p style="color:var(--secondary-color);margin:0;">HR Admin Panel</p>
+        </div>
+        <form id="loginForm">
+          <div class="mb-3">
+            <label for="username" class="form-label">Username</label>
+            <input type="text" class="form-control" id="username" placeholder="Enter username" required autocomplete="off">
+          </div>
+          <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" class="form-control" id="password" placeholder="Enter password" required>
+          </div>
+          <button type="submit" class="btn btn-primary login-btn">
+            <span id="loginBtnText">Login</span>
+            <span id="loginSpinner" class="spinner" style="display:none;margin-left:8px;border-top-color:white;"></span>
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ DASHBOARD PAGE ═══════════════ -->
+<div id="dashboardPage" style="display:none;">
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
+    <div class="container-fluid" style="max-width:1400px;margin:0 auto;">
+      <span class="navbar-brand">📊 Dashboard</span>
+      <div class="user-info">
+        <span class="user-name" id="userNameDisplay"></span>
+        <button class="theme-toggle" id="themeToggle" title="Toggle Dark Mode" type="button">🌙</button>
+        <button class="logout-btn" id="logoutBtn" type="button">Logout</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Dashboard Content -->
+  <div class="dashboard-container">
+
+    <!-- Header -->
+    <div class="dashboard-header">
+      <h1>Dashboard Overview</h1>
+      <button class="update-btn" id="updateBtn" type="button">🔄 Update Data</button>
+    </div>
+
+    <!-- ── Filter Bar ── -->
+    <div class="filter-bar" id="filterBar">
+      <div class="filter-group">
+        <label for="filterGovernorate">Governorate</label>
+        <select id="filterGovernorate"><option value="">All Governorates</option></select>
+      </div>
+      <div class="filter-group">
+        <label for="filterCenter">Center</label>
+        <select id="filterCenter"><option value="">All Centers</option></select>
+      </div>
+      <div class="filter-group">
+        <label for="filterSupplier">Supplier</label>
+        <select id="filterSupplier"><option value="">All Suppliers</option></select>
+      </div>
+      <button class="btn-apply" id="applyFilter">🔍 Apply Filter</button>
+      <button class="btn-reset" id="resetFilter" title="Reset Filters">↺</button>
+    </div>
+
+    <!-- ── Stats + Charts Grid ── -->
+    <div class="dashboard-grid">
+      <!-- Total Reports -->
+      <div class="stat-card">
+        <div class="stat-label">Total Reports</div>
+        <div class="stat-number" id="totalReportsNum">0</div>
+        <p style="margin:0;font-size:0.88rem;color:var(--secondary-color);">Equipment issues recorded</p>
+      </div>
+
+      <!-- Centers Distribution -->
+      <div class="chart-card">
+        <div class="chart-title">Centers Distribution</div>
+        <div class="chart-container"><canvas id="centersChart"></canvas></div>
+      </div>
+
+      <!-- Malfunctions -->
+      <div class="chart-card">
+        <div class="chart-title">Types of Malfunctions</div>
+        <div class="chart-container"><canvas id="malfunctionsChart"></canvas></div>
+      </div>
+    </div>
+
+    <div class="dashboard-grid">
+      <!-- Companies -->
+      <div class="chart-card dashboard-grid-full">
+        <div class="chart-title">Equipment Assignments by Company</div>
+        <div class="chart-container" style="height:350px;"><canvas id="companiesChart"></canvas></div>
+      </div>
+
+      <!-- Fixed per Governorate -->
+      <div class="chart-card dashboard-grid-full">
+        <div class="chart-title">Fixed Issues by Governorate</div>
+        <div class="chart-container" style="height:350px;"><canvas id="fixedChart"></canvas></div>
+      </div>
+    </div>
+
+    <!-- ── Data Table ── -->
+    <div class="table-card">
+      <div class="chart-title">📋 Reports Detail</div>
+      <div class="table-wrapper">
+        <table id="dataTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Supplier</th>
+              <th>Time (GMT)</th>
+              <th>TimeStamp Admin Sent</th>
+              <th>TimeStamp Company Received</th>
+              <th>TimeStamp Technician Received</th>
+              <th>TimeStamp of Not Fixed</th>
+              <th>TimeStamp of Fixed</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <tr><td colspan="8" class="table-empty">No data loaded yet.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="table-pagination">
+        <span id="tableInfo" style="color:var(--secondary-color);"></span>
+        <div class="pagination-btns" id="paginationBtns"></div>
+      </div>
+    </div>
+
+  </div><!-- /dashboard-container -->
+</div><!-- /dashboardPage -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+  let currentAdminName = '';
+  let lastTimestamp = 0;
+  let cacheCheckInterval = null;
+  let charts = {};
+  let isDarkMode = false;
+  let allTableRows = [];
+  let currentPage = 1;
+  const PAGE_SIZE = 10;
+
+  // ── Dark Mode ────────────────────────────────────────────────────────────────
+  function initDarkMode() {
+    isDarkMode = localStorage.getItem('dashboardDarkMode') === 'true';
+    document.body.classList.toggle('dark-mode', isDarkMode);
+    document.getElementById('themeToggle').textContent = isDarkMode ? '☀️' : '🌙';
+    updateChartColors();
+  }
+
+  document.getElementById('themeToggle').addEventListener('click', function() {
+    isDarkMode = !isDarkMode;
+    localStorage.setItem('dashboardDarkMode', isDarkMode);
+    document.body.classList.toggle('dark-mode', isDarkMode);
+    this.textContent = isDarkMode ? '☀️' : '🌙';
+    updateChartColors();
+  });
+
+  function updateChartColors() {
+    const textColor = isDarkMode ? '#e0e0e0' : '#212529';
+    const gridColor = isDarkMode ? '#2e3a50' : '#dee2e6';
+    Object.values(charts).forEach(chart => {
+      if (!chart) return;
+      chart.options.plugins.legend.labels.color = textColor;
+      ['x','y'].forEach(axis => {
+        if (chart.options.scales && chart.options.scales[axis]) {
+          chart.options.scales[axis].ticks.color = textColor;
+          chart.options.scales[axis].grid.color = gridColor;
+        }
+      });
+      chart.update();
+    });
+  }
+
+  // ── Login ────────────────────────────────────────────────────────────────────
+  document.getElementById('loginForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+    const loginBtn = document.querySelector('.login-btn');
+    const loginSpinner = document.getElementById('loginSpinner');
+
+    loginBtn.disabled = true;
+    document.getElementById('loginBtnText').style.display = 'none';
+    loginSpinner.style.display = 'inline-block';
+
+    google.script.run
+      .withSuccessHandler(function(result) {
+        loginBtn.disabled = false;
+        document.getElementById('loginBtnText').style.display = 'inline';
+        loginSpinner.style.display = 'none';
+
+        if (result.success) {
+          currentAdminName = result.adminName;
+          lastTimestamp = result.lastTimestamp;
+          document.getElementById('loginPage').style.display = 'none';
+          document.getElementById('dashboardPage').style.display = 'block';
+          document.getElementById('userNameDisplay').textContent = currentAdminName;
+          initDarkMode();
+          loadFilterOptions();
+          loadDashboardData();
+          startCacheChecker();
+        } else {
+          Swal.fire({ icon: 'error', title: 'Login Failed', text: 'Invalid username or password', confirmButtonText: 'Try Again' });
+        }
+      })
+      .withFailureHandler(function(err) {
+        loginBtn.disabled = false;
+        document.getElementById('loginBtnText').style.display = 'inline';
+        loginSpinner.style.display = 'none';
+        Swal.fire({ icon: 'error', title: 'Error', text: 'Login error: ' + err });
+      })
+      .doLogin(username, password);
+  });
+
+  // ── Load Filter Options ───────────────────────────────────────────────────────
+  function loadFilterOptions() {
+    google.script.run
+      .withSuccessHandler(function(result) {
+        if (result.error) return;
+        populateSelect('filterGovernorate', result.governorates, 'All Governorates');
+        populateSelect('filterCenter',      result.centers,      'All Centers');
+        populateSelect('filterSupplier',    result.suppliers,    'All Suppliers');
+      })
+      .withFailureHandler(function() {})
+      .getFilterOptions();
+  }
+
+  function populateSelect(id, items, placeholder) {
+    const sel = document.getElementById(id);
+    sel.innerHTML = `<option value="">${placeholder}</option>`;
+    items.forEach(item => {
+      const opt = document.createElement('option');
+      opt.value = item;
+      opt.textContent = item;
+      sel.appendChild(opt);
+    });
+  }
+
+  // ── Filter Handlers ───────────────────────────────────────────────────────────
+  document.getElementById('applyFilter').addEventListener('click', function() {
+    loadDashboardData();
+  });
+
+  document.getElementById('resetFilter').addEventListener('click', function() {
+    document.getElementById('filterGovernorate').value = '';
+    document.getElementById('filterCenter').value = '';
+    document.getElementById('filterSupplier').value = '';
+    loadDashboardData();
+  });
+
+  function getActiveFilters() {
+    return {
+      governorate: document.getElementById('filterGovernorate').value,
+      center:      document.getElementById('filterCenter').value,
+      supplier:    document.getElementById('filterSupplier').value
+    };
+  }
+
+  // ── Load Dashboard Data ───────────────────────────────────────────────────────
+  function loadDashboardData() {
+    Swal.fire({
+      title: 'Loading Dashboard...', allowOutsideClick: false,
+      allowEscapeKey: false, showConfirmButton: false,
+      didOpen: () => Swal.showLoading()
+    });
+
+    google.script.run
+      .withSuccessHandler(function(result) {
+        Swal.close();
+        if (result.error) { Swal.fire('Error', result.error, 'error'); return; }
+
+        document.getElementById('totalReportsNum').textContent = result.totalReports || 0;
+        renderCentersChart(result.centers || []);
+        renderMalfunctionsChart(result.malfunctions || []);
+        renderCompaniesChart(result.companies || []);
+        renderFixedChart(result.fixedPerGovernorate || []);
+
+        allTableRows = result.tableRows || [];
+        currentPage = 1;
+        renderTable();
+      })
+      .withFailureHandler(function(err) {
+        Swal.close();
+        Swal.fire('Error', 'Failed to load dashboard: ' + err, 'error');
+      })
+      .getDashboardData(getActiveFilters());
+  }
+
+  // ── Table Rendering ───────────────────────────────────────────────────────────
+  function renderTable() {
+    const tbody = document.getElementById('tableBody');
+    const total = allTableRows.length;
+    const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+    if (currentPage > totalPages) currentPage = totalPages;
+
+    const start = (currentPage - 1) * PAGE_SIZE;
+    const slice = allTableRows.slice(start, start + PAGE_SIZE);
+
+    if (slice.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="8" class="table-empty">No records found.</td></tr>';
+      document.getElementById('tableInfo').textContent = '';
+      document.getElementById('paginationBtns').innerHTML = '';
+      return;
+    }
+
+    tbody.innerHTML = slice.map((row, i) => `
+      <tr>
+        <td>${start + i + 1}</td>
+        <td>${row.supplier || ''}</td>
+        <td>${row.timeGMT || ''}</td>
+        <td>${row.tsAdminSent || ''}</td>
+        <td>${row.tsCoReceived || ''}</td>
+        <td>${row.tsTechReceived || ''}</td>
+        <td>${row.tsNotFixed || ''}</td>
+        <td>${row.tsFixed || ''}</td>
+      </tr>
+    `).join('');
+
+    document.getElementById('tableInfo').textContent =
+      `Showing ${start + 1}–${Math.min(start + PAGE_SIZE, total)} of ${total} records`;
+
+    // Pagination buttons
+    const btns = document.getElementById('paginationBtns');
+    btns.innerHTML = '';
+    const addBtn = (label, page, disabled, active) => {
+      const b = document.createElement('button');
+      b.className = 'page-btn' + (active ? ' active' : '');
+      b.textContent = label;
+      b.disabled = disabled;
+      if (!disabled && !active) b.addEventListener('click', () => { currentPage = page; renderTable(); });
+      btns.appendChild(b);
+    };
+
+    addBtn('‹ Prev', currentPage - 1, currentPage === 1, false);
+    // Show a window of pages
+    const win = 2;
+    let from = Math.max(1, currentPage - win);
+    let to = Math.min(totalPages, currentPage + win);
+    if (from > 1) { addBtn('1', 1, false, false); if (from > 2) { const s = document.createElement('span'); s.textContent = '…'; s.style.padding = '0 4px'; btns.appendChild(s); } }
+    for (let p = from; p <= to; p++) addBtn(p, p, false, p === currentPage);
+    if (to < totalPages) { if (to < totalPages - 1) { const s = document.createElement('span'); s.textContent = '…'; s.style.padding = '0 4px'; btns.appendChild(s); } addBtn(totalPages, totalPages, false, false); }
+    addBtn('Next ›', currentPage + 1, currentPage === totalPages, false);
+  }
+
+  // ── Charts ────────────────────────────────────────────────────────────────────
+  const COLORS = ['#0a2a5e','#1a6fbf','#20c997','#ffc107','#dc3545','#6f42c1','#fd7e14','#e83e8c'];
+
+  function baseOpts() {
+    const text = isDarkMode ? '#e0e0e0' : '#212529';
+    const grid = isDarkMode ? '#2e3a50' : '#dee2e6';
+    return {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: text, font: { size: 12 } } } },
+      scales: {
+        y: { ticks: { color: text }, grid: { color: grid } },
+        x: { ticks: { color: text }, grid: { color: grid } }
+      }
+    };
+  }
+
+  function renderCentersChart(data) {
+    if (charts.centers) charts.centers.destroy();
+    const total = data.reduce((s, d) => s + d.count, 0);
+    charts.centers = new Chart(document.getElementById('centersChart').getContext('2d'), {
+      type: 'doughnut',
+      data: {
+        labels: data.map(d => d.name),
+        datasets: [{ data: data.map(d => d.count), backgroundColor: COLORS.slice(0, data.length), borderColor: isDarkMode ? '#1e2a3a' : 'white', borderWidth: 2 }]
+      },
+      options: { ...baseOpts(), plugins: { legend: baseOpts().plugins.legend, tooltip: { callbacks: { label: ctx => `${ctx.parsed} (${((ctx.parsed/total)*100).toFixed(1)}%)` } } } }
+    });
+  }
+
+  function renderMalfunctionsChart(data) {
+    if (charts.malfunctions) charts.malfunctions.destroy();
+    const total = data.reduce((s, d) => s + d.count, 0);
+    const colors = ['#dc3545','#fd7e14','#28a745','#0a2a5e','#1a6fbf'];
+    charts.malfunctions = new Chart(document.getElementById('malfunctionsChart').getContext('2d'), {
+      type: 'pie',
+      data: {
+        labels: data.map(d => d.name),
+        datasets: [{ data: data.map(d => d.count), backgroundColor: colors.slice(0, data.length), borderColor: isDarkMode ? '#1e2a3a' : 'white', borderWidth: 2 }]
+      },
+      options: { ...baseOpts(), plugins: { legend: baseOpts().plugins.legend, tooltip: { callbacks: { label: ctx => `${ctx.parsed} (${((ctx.parsed/total)*100).toFixed(1)}%)` } } } }
+    });
+  }
+
+  function renderCompaniesChart(data) {
+    if (charts.companies) charts.companies.destroy();
+    const total = data.reduce((s, d) => s + d.count, 0);
+    charts.companies = new Chart(document.getElementById('companiesChart').getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: data.map(d => d.name),
+        datasets: [{ label: 'Count', data: data.map(d => d.count), backgroundColor: COLORS.slice(0, data.length), borderRadius: 7, borderSkipped: false }]
+      },
+      options: { ...baseOpts(), indexAxis: 'y', plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => `${ctx.parsed.x} (${((ctx.parsed.x/total)*100).toFixed(1)}%)` } } } }
+    });
+  }
+
+  function renderFixedChart(data) {
+    if (charts.fixed) charts.fixed.destroy();
+    const total = data.reduce((s, d) => s + d.count, 0);
+    charts.fixed = new Chart(document.getElementById('fixedChart').getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: data.map(d => d.name),
+        datasets: [{ label: 'Fixed Issues', data: data.map(d => d.count), backgroundColor: ['#28a745','#20c997','#17a2b8','#0a2a5e','#6f42c1'], borderRadius: 7, borderSkipped: false }]
+      },
+      options: { ...baseOpts(), plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => `${ctx.parsed.y} (${((ctx.parsed.y/total)*100).toFixed(1)}%)` } } } }
+    });
+  }
+
+  // ── Cache Checker ─────────────────────────────────────────────────────────────
+  function startCacheChecker() {
+    if (cacheCheckInterval) clearInterval(cacheCheckInterval);
+    cacheCheckInterval = setInterval(() => {
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.currentTs > 0) {
+            if (lastTimestamp === 0) { lastTimestamp = result.currentTs; }
+            else if (result.hasUpdate) { lastTimestamp = result.currentTs; showUpdateAvailable(); }
+          }
+        })
+        .withFailureHandler(() => {})
+        .checkForCacheUpdate(lastTimestamp);
+    }, 10000);
+  }
+
+  function showUpdateAvailable() {
+    if (Swal.isVisible()) return;
+    Swal.fire({
+      icon: 'info', title: 'Data Updated',
+      text: 'New data is available. Click to refresh the dashboard.',
+      confirmButtonText: 'Update Dashboard',
+      allowOutsideClick: false, allowEscapeKey: false
+    }).then(r => { if (r.isConfirmed) loadDashboardData(); });
+  }
+
+  // ── Button Handlers ───────────────────────────────────────────────────────────
+  document.getElementById('updateBtn').addEventListener('click', loadDashboardData);
+
+  document.getElementById('logoutBtn').addEventListener('click', function() {
+    if (cacheCheckInterval) clearInterval(cacheCheckInterval);
+    Object.values(charts).forEach(c => { if (c) c.destroy(); });
+    charts = {};
+    currentAdminName = ''; lastTimestamp = 0; allTableRows = [];
+    document.getElementById('dashboardPage').style.display = 'none';
+    document.getElementById('loginPage').style.display = 'block';
+    document.getElementById('loginForm').reset();
+    document.getElementById('username').focus();
+    Swal.fire({ icon: 'success', title: 'Logged Out', text: 'You have been logged out successfully.', timer: 1500, showConfirmButton: false });
+  });
+
+  // ── Init ──────────────────────────────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('username').focus();
+  });
+</script>
+</body>
+</html>

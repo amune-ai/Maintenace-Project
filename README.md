@@ -1,7 +1,7 @@
 # Maintenace-Project
 
-Collection of 6 Google Apps Script web apps, each writing to the same
-submissions sheet. Each project lives in its own subfolder with its own
+Collection of 7 Google Apps Script web apps, each writing to (or, for
+the dashboard, only reading from) the same submissions sheet. Each project lives in its own subfolder with its own
 `.clasp.json` (own script ID) — they are deployed independently, only the
 code lives together in this one repo.
 
