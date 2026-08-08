@@ -105,7 +105,17 @@ function readRawDataCache() {
     }
   }
 
-  const data = cacheSheet.getRange(1, 1, lastRow, 42).getValues();
+  // Normalize any real Date-typed cells into formatted strings right away.
+  // Without this, a Date survives a live read fine, but JSON.stringify()
+  // below (for caching) silently converts it to an ISO "...T...Z" string,
+  // and JSON.parse() on a cache hit never converts it back — so cached
+  // rows would show raw ISO timestamps instead of the formatted ones.
+  const data = cacheSheet.getRange(1, 1, lastRow, 42).getValues().map(row =>
+    row.map(cell => cell instanceof Date
+      ? Utilities.formatDate(cell, Session.getScriptTimeZone(), 'yyyy-MM-dd HH:mm:ss')
+      : cell
+    )
+  );
 
   try {
     scriptCache.put(cacheKey, JSON.stringify(data), RAW_CACHE_TTL_SECONDS);
