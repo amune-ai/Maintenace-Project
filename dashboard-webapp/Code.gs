@@ -70,17 +70,56 @@ const COL = {
   TS_FIXED:       36
 };
 
+// ─── Raw DataCache read, shared by getFilterOptions/getDashboardData ─────────
+// Keyed on CacheTimestamp so repeated calls (e.g. getFilterOptions +
+// getDashboardData back-to-back on login, or rapid filter re-applies) reuse
+// the same read instead of each doing their own full 42-column sheet read —
+// and it's automatically invalidated the moment any of the 6 write-capable
+// apps actually changes the data, not on a blind timer.
+const RAW_CACHE_KEY_PREFIX = 'dashboard_raw_datacache_';
+const RAW_CACHE_TTL_SECONDS = 300;
+
+function readRawDataCache() {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const cacheSheet = ss.getSheetByName('DataCache');
+  if (!cacheSheet) return null;
+
+  const lastRow = cacheSheet.getLastRow();
+  if (lastRow < 1) return [];
+
+  const tsSheet = ss.getSheetByName('CacheTimestamp');
+  const currentTs = tsSheet ? tsSheet.getRange('A1').getValue() : 0;
+  const cacheKey = RAW_CACHE_KEY_PREFIX + currentTs;
+
+  const scriptCache = CacheService.getScriptCache();
+  const cached = scriptCache.get(cacheKey);
+  if (cached) {
+    try {
+      return JSON.parse(cached);
+    } catch (e) {
+      // Corrupt cache entry — fall through to a live read below.
+    }
+  }
+
+  const data = cacheSheet.getRange(1, 1, lastRow, 42).getValues();
+
+  try {
+    scriptCache.put(cacheKey, JSON.stringify(data), RAW_CACHE_TTL_SECONDS);
+  } catch (e) {
+    // Payload too large for CacheService's 100KB/key limit — skip caching,
+    // the live read above already succeeded so this is not fatal.
+    Logger.log('readRawDataCache: skipping cache, payload too large: ' + e);
+  }
+
+  return data;
+}
+
 // ─── Get Filter Options ───────────────────────────────────────────────────────
 function getFilterOptions() {
   try {
-    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-    const cacheSheet = ss.getSheetByName('DataCache');
-    if (!cacheSheet) return { error: 'DataCache not found' };
-
-    const lastRow = cacheSheet.getLastRow();
-    if (lastRow < 1) return { success: true, governorates: [], centers: [], suppliers: [] };
-
-    const data = cacheSheet.getRange(1, 1, lastRow, 42).getValues();
+    const data = readRawDataCache();
+    if (data === null) return { error: 'DataCache not found' };
+    if (data.length < 1) return { success: true, governorates: [], centers: [], suppliers: [] };
 
     const govSet = new Set();
     const centerSet = new Set();
@@ -106,19 +145,13 @@ function getFilterOptions() {
 }
 
 // ─── Get Dashboard Data (with optional filters) ───────────────────────────────
-function getDashboardData(filters) {
+function getDashboardData(filters, page) {
   try {
-    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-    const cacheSheet = ss.getSheetByName('DataCache');
-
-    if (!cacheSheet) return { error: 'Sheet "DataCache" not found' };
-
-    const lastRow = cacheSheet.getLastRow();
-    if (lastRow < 1) {
-      return { success: true, totalReports: 0, centers: [], malfunctions: [], companies: [], fixedPerGovernorate: [], tableRows: [] };
+    const raw = readRawDataCache();
+    if (raw === null) return { error: 'Sheet "DataCache" not found' };
+    if (raw.length < 1) {
+      return { success: true, totalReports: 0, centers: [], malfunctions: [], companies: [], fixedPerGovernorate: [], tableRows: [], serverPaginated: false };
     }
-
-    const raw = cacheSheet.getRange(1, 1, lastRow, 42).getValues();
 
     // Apply filters
     const filterGov      = filters && filters.governorate ? filters.governorate.trim().toLowerCase() : '';
@@ -191,7 +224,12 @@ function getDashboardData(filters) {
       .map(name => ({ name, count: fixedMap[name] }))
       .sort((a, b) => b.count - a.count);
 
-    // Table rows
+    // Table rows — ship every matching row for small result sets (keeps
+    // instant client-side paging for the common, filtered case); once the
+    // result set is large, only ship the requested page so we're not
+    // serializing/transferring thousands of rows nobody's currently
+    // looking at. Charts/totals above are always computed from the full
+    // filtered set regardless of this — only the row-level table is paged.
     const fmt = (val) => {
       if (!val || val === '' || (typeof val === 'number' && isNaN(val))) return '';
       if (val instanceof Date) {
@@ -200,7 +238,18 @@ function getDashboardData(filters) {
       return String(val).trim();
     };
 
-    const tableRows = data.map(row => ({
+    const TABLE_PAGE_SIZE = 10;
+    const SERVER_PAGINATION_THRESHOLD = 200;
+    const serverPaginated = totalReports > SERVER_PAGINATION_THRESHOLD;
+
+    let rowsForClient = data;
+    if (serverPaginated) {
+      const pageNum = Math.max(1, page || 1);
+      const start = (pageNum - 1) * TABLE_PAGE_SIZE;
+      rowsForClient = data.slice(start, start + TABLE_PAGE_SIZE);
+    }
+
+    const tableRows = rowsForClient.map(row => ({
       supplier:          fmt(row[COL.SUPPLIER]),
       timeGMT:           fmt(row[COL.TIME_GMT]),
       tsAdminSent:       fmt(row[COL.TS_ADMIN_SENT]),
@@ -217,7 +266,8 @@ function getDashboardData(filters) {
       malfunctions,
       companies,
       fixedPerGovernorate,
-      tableRows
+      tableRows,
+      serverPaginated
     };
   } catch (e) {
     Logger.log('getDashboardData error: ' + e);
