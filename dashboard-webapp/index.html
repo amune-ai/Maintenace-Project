@@ -6,8 +6,7 @@
   <title>Login Dashboard</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/echarts-gl@2/dist/echarts-gl.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
   <style>
     :root {
       --primary-color: #0a2a5e;
@@ -151,6 +150,35 @@
     }
     .chart-title { position: relative; font-size: 1.1rem; font-weight: 700; margin-bottom: 18px; color: var(--dark-text); }
     .chart-container { position: relative; height: 300px; margin-bottom: 10px; }
+
+    /* ── Glassmorphic chart tooltip ── */
+    .chartjs-tooltip-glass {
+      position: fixed;
+      pointer-events: none;
+      transform: translate(-50%, calc(-100% - 14px));
+      background: rgba(255,255,255,0.78);
+      backdrop-filter: blur(14px) saturate(180%);
+      -webkit-backdrop-filter: blur(14px) saturate(180%);
+      border: 1px solid rgba(255,255,255,0.5);
+      border-radius: 10px;
+      padding: 9px 13px;
+      font-size: 0.8rem;
+      color: #212529;
+      box-shadow: 0 10px 28px rgba(10,42,94,0.2);
+      opacity: 0;
+      transition: opacity 0.12s ease;
+      z-index: 9999;
+      white-space: nowrap;
+    }
+    body.dark-mode .chartjs-tooltip-glass {
+      background: rgba(30,42,58,0.85);
+      border-color: rgba(255,255,255,0.1);
+      color: #e0e0e0;
+      box-shadow: 0 10px 28px rgba(0,0,0,0.5);
+    }
+    .chartjs-tooltip-glass .tt-title { font-weight: 700; margin-bottom: 4px; font-size: 0.78rem; opacity: 0.8; }
+    .chartjs-tooltip-glass .tt-row { display: flex; align-items: center; gap: 7px; font-weight: 600; }
+    .chartjs-tooltip-glass .tt-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; box-shadow: 0 0 6px currentColor; }
 
     /* ── Dashboard Grid ── */
     .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-bottom: 24px; }
@@ -321,13 +349,13 @@
       <!-- Centers Distribution -->
       <div class="chart-card">
         <div class="chart-title">Centers Distribution</div>
-        <div class="chart-container"><div id="centersChart" style="width:100%;height:100%;"></div></div>
+        <div class="chart-container"><canvas id="centersChart"></canvas></div>
       </div>
 
       <!-- Malfunctions -->
       <div class="chart-card">
         <div class="chart-title">Types of Malfunctions</div>
-        <div class="chart-container"><div id="malfunctionsChart" style="width:100%;height:100%;"></div></div>
+        <div class="chart-container"><canvas id="malfunctionsChart"></canvas></div>
       </div>
     </div>
 
@@ -335,13 +363,13 @@
       <!-- Companies -->
       <div class="chart-card dashboard-grid-full">
         <div class="chart-title">Equipment Assignments by Company</div>
-        <div class="chart-container" style="height:380px;"><div id="companiesChart" style="width:100%;height:100%;"></div></div>
+        <div class="chart-container" style="height:350px;"><canvas id="companiesChart"></canvas></div>
       </div>
 
       <!-- Fixed per Governorate -->
       <div class="chart-card dashboard-grid-full">
         <div class="chart-title">Fixed Issues by Governorate</div>
-        <div class="chart-container" style="height:380px;"><div id="fixedChart" style="width:100%;height:100%;"></div></div>
+        <div class="chart-container" style="height:350px;"><canvas id="fixedChart"></canvas></div>
       </div>
     </div>
 
@@ -411,15 +439,28 @@
     updateChartColors();
   });
 
-  // ECharts option trees for 3D charts are complex enough (axes, grid3D,
-  // lighting, per-slice parametric equations) that patching colors in place
-  // isn't worth it — just re-render each chart that's already showing data,
-  // from the cached last-received data, with fresh theme colors baked in.
   function updateChartColors() {
-    if (lastChartData.centers.length) renderCentersChart(lastChartData.centers);
-    if (lastChartData.malfunctions.length) renderMalfunctionsChart(lastChartData.malfunctions);
-    if (lastChartData.companies.length) renderCompaniesChart(lastChartData.companies);
-    if (lastChartData.fixed.length) renderFixedChart(lastChartData.fixed);
+    const textColor = isDarkMode ? '#e0e0e0' : '#212529';
+    const gridColor = isDarkMode ? '#2e3a50' : '#dee2e6';
+    // softShadow's color is baked into each chart's options at creation
+    // time (unlike centerText, which reads isDarkMode live on every draw),
+    // so it needs patching here too or a toggle would leave it stuck.
+    const pieShadow = isDarkMode ? 'rgba(0,0,0,0.5)' : 'rgba(10,42,94,0.28)';
+    const barShadow = isDarkMode ? 'rgba(0,0,0,0.4)' : 'rgba(10,42,94,0.18)';
+    Object.entries(charts).forEach(([name, chart]) => {
+      if (!chart) return;
+      chart.options.plugins.legend.labels.color = textColor;
+      if (chart.options.plugins.softShadow) {
+        chart.options.plugins.softShadow.color = (name === 'companies' || name === 'fixed') ? barShadow : pieShadow;
+      }
+      ['x','y'].forEach(axis => {
+        if (chart.options.scales && chart.options.scales[axis]) {
+          chart.options.scales[axis].ticks.color = textColor;
+          chart.options.scales[axis].grid.color = gridColor;
+        }
+      });
+      chart.update();
+    });
   }
 
   // ── Login ────────────────────────────────────────────────────────────────────
@@ -680,214 +721,253 @@
     addBtn('Next ›', currentPage + 1, currentPage === totalPages, false);
   }
 
-  // ── Charts (ECharts + echarts-gl, real WebGL 3D) ────────────────────────────
-  // Categorical palette validated for colorblind-safety with the dataviz
-  // skill's validator (adjacent CVD ΔE and normal-vision floor both clear the
-  // gate in both modes) — the previous ad-hoc per-chart color arrays failed.
+  // ── Charts ────────────────────────────────────────────────────────────────────
+  // Categorical palette validated for colorblind-safety with the dataviz skill's
+  // validator (adjacent CVD ΔE and normal-vision floor both clear the gate in
+  // both modes) — the previous ad-hoc per-chart color arrays failed that check.
   const CHART_PALETTE = {
     light: ['#2a78d6','#eb6834','#1baf7a','#eda100','#e87ba4','#008300','#4a3aa7','#e34948'],
     dark:  ['#3987e5','#d95926','#199e70','#c98500','#d55181','#008300','#9085e9','#e66767']
   };
   function chartColors() { return isDarkMode ? CHART_PALETTE.dark : CHART_PALETTE.light; }
 
-  // Cache of each chart's last-rendered data, so a dark-mode toggle can just
-  // re-render with current colors instead of trying to patch a 3D option
-  // tree in place.
-  let lastChartData = { centers: [], malfunctions: [], companies: [], fixed: [] };
+  function hexToRgba(hex, alpha) {
+    const n = parseInt(hex.slice(1), 16);
+    return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${alpha})`;
+  }
 
-  function glassTooltip() {
+  // Linear gradient along a bar's length — same value, same bar length, just a
+  // richer fill. Falls back to the flat hex on the first layout pass, before
+  // Chart.js has measured chartArea (the standard scriptable-gradient pattern).
+  function barGradient(ctx, chartArea, hex, vertical) {
+    if (!chartArea) return hex;
+    const g = vertical
+      ? ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top)
+      : ctx.createLinearGradient(chartArea.left, 0, chartArea.right, 0);
+    g.addColorStop(0, hexToRgba(hex, 0.55));
+    g.addColorStop(1, hexToRgba(hex, 0.95));
+    return g;
+  }
+
+  // Soft elevation shadow behind whatever the chart draws — real depth via
+  // blur/offset rather than a distorted 3D projection of the data itself.
+  const softShadowPlugin = {
+    id: 'softShadow',
+    beforeDatasetsDraw(chart, args, opts) {
+      if (opts.enabled === false) return;
+      const {ctx} = chart;
+      ctx.save();
+      ctx.shadowColor = opts.color || 'rgba(10,42,94,0.25)';
+      ctx.shadowBlur = opts.blur || 16;
+      ctx.shadowOffsetX = opts.offsetX || 0;
+      ctx.shadowOffsetY = opts.offsetY || 8;
+    },
+    afterDatasetsDraw(chart, args, opts) {
+      if (opts.enabled === false) return;
+      chart.ctx.restore();
+    }
+  };
+  Chart.register(softShadowPlugin);
+
+  // Total, centered in the doughnut's hole — a small "at a glance" figure that
+  // doesn't cost any extra chart real estate.
+  const centerTextPlugin = {
+    id: 'centerText',
+    afterDraw(chart, args, opts) {
+      if (!opts || !opts.enabled) return;
+      const {ctx, chartArea: {left, right, top, bottom}} = chart;
+      const cx = (left + right) / 2, cy = (top + bottom) / 2;
+      ctx.save();
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.font = '700 26px system-ui, -apple-system, "Segoe UI", sans-serif';
+      ctx.fillStyle = isDarkMode ? '#e0e0e0' : '#212529';
+      ctx.fillText(opts.value || '', cx, cy - 10);
+      ctx.font = '600 11px system-ui, -apple-system, "Segoe UI", sans-serif';
+      ctx.fillStyle = isDarkMode ? '#8a97ad' : '#6c757d';
+      ctx.fillText((opts.label || '').toUpperCase(), cx, cy + 14);
+      ctx.restore();
+    }
+  };
+  Chart.register(centerTextPlugin);
+
+  // Glassmorphic HTML tooltip, replacing Chart.js's flat default box.
+  function externalTooltipHandler(context) {
+    const {chart, tooltip} = context;
+    let el = document.getElementById('chartjsTooltip');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'chartjsTooltip';
+      el.className = 'chartjs-tooltip-glass';
+      document.body.appendChild(el);
+    }
+    if (tooltip.opacity === 0) { el.style.opacity = 0; return; }
+
+    if (tooltip.body) {
+      let html = '';
+      (tooltip.title || []).forEach(t => { html += `<div class="tt-title">${esc(t)}</div>`; });
+      tooltip.dataPoints.forEach((dp, i) => {
+        const ds = chart.data.datasets[dp.datasetIndex];
+        const raw = (ds.rawColors && ds.rawColors[dp.dataIndex]) || ds.rawColor || '#2a78d6';
+        html += `<div class="tt-row"><span class="tt-dot" style="background:${raw};color:${raw}"></span>${esc(tooltip.body[i].lines.join(' '))}</div>`;
+      });
+      el.innerHTML = html;
+    }
+
+    const rect = chart.canvas.getBoundingClientRect();
+    el.style.opacity = 1;
+    el.style.left = (rect.left + tooltip.caretX) + 'px';
+    el.style.top = (rect.top + tooltip.caretY) + 'px';
+  }
+
+  function baseOpts() {
+    const text = isDarkMode ? '#e0e0e0' : '#212529';
+    const grid = isDarkMode ? '#2e3a50' : '#dee2e6';
     return {
-      backgroundColor: isDarkMode ? 'rgba(30,42,58,0.85)' : 'rgba(255,255,255,0.85)',
-      borderColor: isDarkMode ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.6)',
-      borderWidth: 1,
-      textStyle: { color: isDarkMode ? '#e0e0e0' : '#212529', fontSize: 12 },
-      extraCssText: 'backdrop-filter: blur(14px) saturate(180%); -webkit-backdrop-filter: blur(14px) saturate(180%); border-radius: 10px; box-shadow: 0 10px 28px rgba(10,42,94,0.2); padding: 9px 13px;'
-    };
-  }
-  function tooltipHtml(label, valueText, color) {
-    return `<div style="font-weight:700;margin-bottom:3px;">${esc(label)}</div>` +
-      `<div style="display:flex;align-items:center;gap:7px;font-weight:600;">` +
-      `<span style="width:8px;height:8px;border-radius:50%;background:${color};box-shadow:0 0 6px ${color};display:inline-block;flex-shrink:0;"></span>${esc(valueText)}</div>`;
-  }
-
-  function legendStyle() {
-    return { textStyle: { color: isDarkMode ? '#e0e0e0' : '#212529', fontSize: 12 }, icon: 'circle', bottom: 4 };
-  }
-
-  // ── 3D pie/doughnut via parametric surfaces ─────────────────────────────────
-  // echarts-gl has no native pie3D series — this is the standard community
-  // technique (a "surface" series per slice, each an extruded wedge) used by
-  // essentially every "ECharts 3D pie" example, since there's no built-in one.
-  function pie3DParametricEquation(startRatio, endRatio, height, k) {
-    const midRadian = (startRatio + endRatio) * Math.PI;
-    const startRadian = startRatio * Math.PI * 2;
-    const endRadian = endRatio * Math.PI * 2;
-    return {
-      u: { min: -Math.PI, max: Math.PI * 3, step: Math.PI / 32 },
-      v: { min: 0, max: Math.PI * 2, step: Math.PI / 20 },
-      x(u, v) {
-        if (u < startRadian) return Math.cos(startRadian) * (1 + Math.cos(v) * k);
-        if (u > endRadian) return Math.cos(endRadian) * (1 + Math.cos(v) * k);
-        return Math.cos(u) * (1 + Math.cos(v) * k);
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: {
+        duration: 900,
+        easing: 'easeOutQuart',
+        delay: (ctx) => ctx.type === 'data' ? ctx.dataIndex * 60 : 0
       },
-      y(u, v) {
-        if (u < startRadian) return Math.sin(startRadian) * (1 + Math.cos(v) * k);
-        if (u > endRadian) return Math.sin(endRadian) * (1 + Math.cos(v) * k);
-        return Math.sin(u) * (1 + Math.cos(v) * k);
+      plugins: {
+        legend: { labels: { color: text, font: { size: 12 }, usePointStyle: true, pointStyle: 'circle', padding: 16 } },
+        tooltip: { enabled: false, external: externalTooltipHandler }
       },
-      z(u, v) {
-        if (u < -Math.PI * 0.5 || u > Math.PI * 2.5) return Math.sin(u);
-        return Math.sin(v) > 0 ? height : -1;
+      scales: {
+        y: { ticks: { color: text }, grid: { color: grid } },
+        x: { ticks: { color: text }, grid: { color: grid } }
       }
     };
   }
 
-  // internalDiameterRatio: 0 for a solid pie, >0 for a doughnut hole. Slice
-  // ANGLE is the only value encoding (a normal pie) — extrusion height is
-  // fixed across every slice, purely a visual "puck" depth, never scaled by
-  // value, so nothing is double-encoded or misleading.
-  function buildPie3D(items, internalDiameterRatio) {
-    const total = items.reduce((s, d) => s + d.value, 0);
-    const k = (1 - internalDiameterRatio) / (1 + internalDiameterRatio);
-    let start = 0;
-    const series = items.map(item => {
-      const ratio = total > 0 ? item.value / total : 0;
-      const startRatio = start;
-      const endRatio = start + ratio;
-      start = endRatio;
-      return {
-        name: item.name,
-        type: 'surface',
-        parametric: true,
-        wireframe: { show: false },
-        itemStyle: { color: item.color, opacity: 0.92 },
-        _pieValue: item.value,
-        _pieColor: item.color,
-        parametricEquation: pie3DParametricEquation(startRatio, endRatio, 8, k)
-      };
-    });
-    return series;
-  }
-
-  function pie3DOption(series, legendNames) {
-    return {
-      backgroundColor: 'transparent',
-      legend: { data: legendNames, ...legendStyle() },
-      // formatter is set by the caller (needs the series' total, computed
-      // per-chart) — glassTooltip() below only supplies the box styling.
-      tooltip: { ...glassTooltip() },
-      xAxis3D: { min: -1, max: 1 }, yAxis3D: { min: -1, max: 1 }, zAxis3D: { min: -1, max: 1 },
-      grid3D: {
-        show: false, boxHeight: 22,
-        viewControl: { alpha: 28, beta: 30, distance: 190, autoRotate: true, autoRotateSpeed: 6, rotateSensitivity: 1.2, zoomSensitivity: 1.2, panSensitivity: 0 },
-        light: { main: { intensity: 1.3, shadow: true, shadowQuality: 'high', alpha: 30 }, ambient: { intensity: 0.4 } }
-      },
-      series
-    };
-  }
-
-  // A pie3D "surface" series' tooltip params don't carry the raw value the
-  // way a normal pie series would, so wire the formatter per-chart using the
-  // series' own stashed _pieValue/_pieColor instead of trying to generalize it.
-  function pieTooltipFormatter(total) {
-    return (p) => {
-      if (p.seriesType !== 'surface') return '';
-      const v = p.data && typeof p.data._pieValue === 'number' ? p.data._pieValue : null;
-      if (v === null) return '';
-      const pct = total > 0 ? ((v / total) * 100).toFixed(1) : '0.0';
-      return tooltipHtml(p.seriesName, `${v.toLocaleString()} (${pct}%)`, p.data._pieColor);
-    };
-  }
-
   function renderCentersChart(data) {
-    lastChartData.centers = data;
+    if (charts.centers) charts.centers.destroy();
     const colors = chartColors();
     const total = data.reduce((s, d) => s + d.count, 0);
-    const items = data.map((d, i) => ({ name: d.name, value: d.count, color: colors[i % colors.length] }));
-    const series = buildPie3D(items, 0.55); // doughnut hole
-    const el = document.getElementById('centersChart');
-    if (!charts.centers) charts.centers = echarts.init(el);
-    const option = pie3DOption(series, items.map(it => it.name));
-    option.tooltip.formatter = pieTooltipFormatter(total);
-    option.graphic = [{
-      type: 'text', left: 'center', top: '42%',
-      style: { text: total.toLocaleString(), fontSize: 26, fontWeight: 700, fill: isDarkMode ? '#e0e0e0' : '#212529', fontFamily: 'system-ui, -apple-system, "Segoe UI", sans-serif' }
-    }, {
-      type: 'text', left: 'center', top: '52%',
-      style: { text: 'TOTAL', fontSize: 11, fontWeight: 600, fill: isDarkMode ? '#8a97ad' : '#6c757d', fontFamily: 'system-ui, -apple-system, "Segoe UI", sans-serif' }
-    }];
-    try { charts.centers.setOption(option, true); } catch (e) { console.error('centersChart render failed:', e); }
+    const rawColors = data.map((d, i) => colors[i % colors.length]);
+    charts.centers = new Chart(document.getElementById('centersChart').getContext('2d'), {
+      type: 'doughnut',
+      data: {
+        labels: data.map(d => d.name),
+        datasets: [{
+          data: data.map(d => d.count),
+          backgroundColor: rawColors,
+          hoverBackgroundColor: rawColors,
+          borderColor: isDarkMode ? '#1e2a3a' : '#ffffff',
+          borderWidth: 3,
+          hoverOffset: 10,
+          hoverBorderWidth: 3,
+          rawColors
+        }]
+      },
+      options: {
+        ...baseOpts(),
+        cutout: '68%',
+        plugins: {
+          legend: baseOpts().plugins.legend,
+          tooltip: { enabled: false, external: externalTooltipHandler, callbacks: { label: ctx => `${ctx.label}: ${ctx.parsed} (${((ctx.parsed/total)*100).toFixed(1)}%)` } },
+          centerText: { enabled: true, value: total.toLocaleString(), label: 'Total' },
+          softShadow: { color: isDarkMode ? 'rgba(0,0,0,0.5)' : 'rgba(10,42,94,0.28)', blur: 18, offsetY: 10 }
+        }
+      }
+    });
   }
 
   function renderMalfunctionsChart(data) {
-    lastChartData.malfunctions = data;
+    if (charts.malfunctions) charts.malfunctions.destroy();
     const colors = chartColors();
     const total = data.reduce((s, d) => s + d.count, 0);
-    const items = data.map((d, i) => ({ name: d.name, value: d.count, color: colors[i % colors.length] }));
-    const series = buildPie3D(items, 0); // solid pie, no hole
-    const el = document.getElementById('malfunctionsChart');
-    if (!charts.malfunctions) charts.malfunctions = echarts.init(el);
-    const option = pie3DOption(series, items.map(it => it.name));
-    option.tooltip.formatter = pieTooltipFormatter(total);
-    try { charts.malfunctions.setOption(option, true); } catch (e) { console.error('malfunctionsChart render failed:', e); }
-  }
-
-  // ── 3D bars via echarts-gl's native bar3D ───────────────────────────────────
-  function bar3DOption(names, values, colors, total, boxWidth) {
-    const textColor = isDarkMode ? '#e0e0e0' : '#212529';
-    return {
-      backgroundColor: 'transparent',
-      tooltip: {
-        formatter: (p) => tooltipHtml(names[p.value[0]], `${p.value[2].toLocaleString()} (${((p.value[2]/total)*100).toFixed(1)}%)`, colors[p.value[0] % colors.length]),
-        ...glassTooltip()
+    const rawColors = data.map((d, i) => colors[i % colors.length]);
+    charts.malfunctions = new Chart(document.getElementById('malfunctionsChart').getContext('2d'), {
+      type: 'pie',
+      data: {
+        labels: data.map(d => d.name),
+        datasets: [{
+          data: data.map(d => d.count),
+          backgroundColor: rawColors,
+          hoverBackgroundColor: rawColors,
+          borderColor: isDarkMode ? '#1e2a3a' : '#ffffff',
+          borderWidth: 3,
+          hoverOffset: 10,
+          hoverBorderWidth: 3,
+          rawColors
+        }]
       },
-      xAxis3D: { type: 'category', data: names, axisLabel: { color: textColor, interval: 0, rotate: names.length > 4 ? 20 : 0 }, axisLine: { lineStyle: { color: isDarkMode ? '#2e3a50' : '#dee2e6' } } },
-      yAxis3D: { type: 'category', data: [''], axisLabel: { show: false } },
-      zAxis3D: { type: 'value', axisLabel: { color: textColor }, axisLine: { lineStyle: { color: isDarkMode ? '#2e3a50' : '#dee2e6' } }, splitLine: { lineStyle: { color: isDarkMode ? '#2e3a50' : '#dee2e6' } } },
-      grid3D: {
-        boxWidth: boxWidth, boxDepth: 35, boxHeight: 85,
-        viewControl: { alpha: 20, beta: 25, distance: 220, autoRotate: false, rotateSensitivity: 1.2, zoomSensitivity: 1.2 },
-        light: { main: { intensity: 1.2, shadow: true, shadowQuality: 'high' }, ambient: { intensity: 0.45 } }
-      },
-      series: [{
-        type: 'bar3D',
-        data: values.map((v, i) => ({ value: [i, 0, v], itemStyle: { color: colors[i % colors.length], opacity: 0.95 } })),
-        shading: 'lambert',
-        barSize: 16,
-        bevelSize: 0.3,
-        bevelSmoothness: 4,
-        animationDurationUpdate: 700,
-        animationEasing: 'elasticOut',
-        animationDelay: (idx) => idx * 90
-      }]
-    };
+      options: {
+        ...baseOpts(),
+        plugins: {
+          legend: baseOpts().plugins.legend,
+          tooltip: { enabled: false, external: externalTooltipHandler, callbacks: { label: ctx => `${ctx.label}: ${ctx.parsed} (${((ctx.parsed/total)*100).toFixed(1)}%)` } },
+          softShadow: { color: isDarkMode ? 'rgba(0,0,0,0.5)' : 'rgba(10,42,94,0.28)', blur: 18, offsetY: 10 }
+        }
+      }
+    });
   }
 
   function renderCompaniesChart(data) {
-    lastChartData.companies = data;
+    if (charts.companies) charts.companies.destroy();
     const colors = chartColors();
     const total = data.reduce((s, d) => s + d.count, 0);
-    const names = data.map(d => d.name);
-    const el = document.getElementById('companiesChart');
-    if (!charts.companies) charts.companies = echarts.init(el);
-    try { charts.companies.setOption(bar3DOption(names, data.map(d => d.count), colors, total, 220), true); }
-    catch (e) { console.error('companiesChart render failed:', e); }
+    const rawColors = data.map((d, i) => colors[i % colors.length]);
+    charts.companies = new Chart(document.getElementById('companiesChart').getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: data.map(d => d.name),
+        datasets: [{
+          label: 'Count',
+          data: data.map(d => d.count),
+          backgroundColor: (ctx) => barGradient(ctx.chart.ctx, ctx.chart.chartArea, rawColors[ctx.dataIndex % rawColors.length], false),
+          hoverBackgroundColor: rawColors,
+          borderRadius: 7,
+          borderSkipped: false,
+          barThickness: 20,
+          rawColors
+        }]
+      },
+      options: {
+        ...baseOpts(),
+        indexAxis: 'y',
+        plugins: {
+          legend: { display: false },
+          tooltip: { enabled: false, external: externalTooltipHandler, callbacks: { label: ctx => `${ctx.label}: ${ctx.parsed.x} (${((ctx.parsed.x/total)*100).toFixed(1)}%)` } },
+          softShadow: { color: isDarkMode ? 'rgba(0,0,0,0.4)' : 'rgba(10,42,94,0.18)', blur: 10, offsetX: 4, offsetY: 0 }
+        }
+      }
+    });
   }
 
   function renderFixedChart(data) {
-    lastChartData.fixed = data;
+    if (charts.fixed) charts.fixed.destroy();
     const colors = chartColors();
     const total = data.reduce((s, d) => s + d.count, 0);
-    const names = data.map(d => d.name);
-    const el = document.getElementById('fixedChart');
-    if (!charts.fixed) charts.fixed = echarts.init(el);
-    try { charts.fixed.setOption(bar3DOption(names, data.map(d => d.count), colors, total, 180), true); }
-    catch (e) { console.error('fixedChart render failed:', e); }
+    const rawColors = data.map((d, i) => colors[i % colors.length]);
+    charts.fixed = new Chart(document.getElementById('fixedChart').getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: data.map(d => d.name),
+        datasets: [{
+          label: 'Fixed Issues',
+          data: data.map(d => d.count),
+          backgroundColor: (ctx) => barGradient(ctx.chart.ctx, ctx.chart.chartArea, rawColors[ctx.dataIndex % rawColors.length], true),
+          hoverBackgroundColor: rawColors,
+          borderRadius: 7,
+          borderSkipped: false,
+          barThickness: 28,
+          rawColors
+        }]
+      },
+      options: {
+        ...baseOpts(),
+        plugins: {
+          legend: { display: false },
+          tooltip: { enabled: false, external: externalTooltipHandler, callbacks: { label: ctx => `${ctx.label}: ${ctx.parsed.y} (${((ctx.parsed.y/total)*100).toFixed(1)}%)` } },
+          softShadow: { color: isDarkMode ? 'rgba(0,0,0,0.4)' : 'rgba(10,42,94,0.18)', blur: 10, offsetX: 0, offsetY: 4 }
+        }
+      }
+    });
   }
-
-  window.addEventListener('resize', () => {
-    Object.values(charts).forEach(c => { if (c) c.resize(); });
-  });
 
   // ── Cache Checker ─────────────────────────────────────────────────────────────
   function startCacheChecker() {
@@ -920,9 +1000,8 @@
 
   document.getElementById('logoutBtn').addEventListener('click', function() {
     if (cacheCheckInterval) clearInterval(cacheCheckInterval);
-    Object.values(charts).forEach(c => { if (c) c.dispose(); });
+    Object.values(charts).forEach(c => { if (c) c.destroy(); });
     charts = {};
-    lastChartData = { centers: [], malfunctions: [], companies: [], fixed: [] };
     currentAdminName = ''; lastTimestamp = 0; allTableRows = [];
     document.getElementById('dashboardPage').style.display = 'none';
     document.getElementById('loginPage').style.display = 'block';
