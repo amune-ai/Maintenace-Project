@@ -271,6 +271,7 @@ function getDashboardData(filters, page) {
       tsTechReceived:    fmt(row[COL.TS_TECH_RECEIVED]),
       tsNotFixed:        fmt(row[COL.TS_NOT_FIXED]),
       tsFixed:           fmt(row[COL.TS_FIXED]),
+      governorate:       fmt(row[COL.GOVERNORATE]),
       center:            fmt(row[COL.CENTER]),
       areaOfMalfunction: fmt(row[COL.AREA_OF_MALFUNCTION]),
       pdf:               fmt(row[COL.PDF])

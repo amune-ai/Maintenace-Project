@@ -339,13 +339,14 @@
               <th>TimeStamp Technician Received</th>
               <th>TimeStamp of Not Fixed</th>
               <th>TimeStamp of Fixed</th>
+              <th>Governorate</th>
               <th>Center</th>
               <th>Area of Malfunction</th>
               <th>Invoice File</th>
             </tr>
           </thead>
           <tbody id="tableBody">
-            <tr><td colspan="11" class="table-empty">No data loaded yet.</td></tr>
+            <tr><td colspan="12" class="table-empty">No data loaded yet.</td></tr>
           </tbody>
         </table>
       </div>
@@ -582,7 +583,7 @@
     const slice = paginationMode === 'server' ? allTableRows : allTableRows.slice(start, start + PAGE_SIZE);
 
     if (slice.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="11" class="table-empty">No records found.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="12" class="table-empty">No records found.</td></tr>';
       document.getElementById('tableInfo').textContent = '';
       document.getElementById('paginationBtns').innerHTML = '';
       return;
@@ -617,6 +618,7 @@
         <td${stTechReceived}>${esc(row.tsTechReceived)}</td>
         <td${stNotFixed}>${esc(row.tsNotFixed)}</td>
         <td${stFixed}>${esc(row.tsFixed)}</td>
+        <td>${esc(row.governorate)}</td>
         <td>${esc(row.center)}</td>
         <td>${esc(row.areaOfMalfunction)}</td>
         <td>${pdfCell}</td>
