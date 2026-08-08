@@ -252,7 +252,7 @@ function getDashboardData(filters, page) {
       return String(val).trim();
     };
 
-    const TABLE_PAGE_SIZE = 10;
+    const TABLE_PAGE_SIZE = 20;
     const SERVER_PAGINATION_THRESHOLD = 200;
     const serverPaginated = totalReports > SERVER_PAGINATION_THRESHOLD;
 
