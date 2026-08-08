@@ -549,15 +549,24 @@
     return null;
   }
 
-  // Gap between two stage timestamps. If endStr is blank (stage hasn't
+  // Hours between two stage timestamps. If endStr is blank (stage hasn't
   // happened yet), compares against now — so a stage that's been pending
   // too long gets flagged too, not just ones that were slow once completed.
-  function isOver24hBetween(startStr, endStr) {
+  function hoursBetween(startStr, endStr) {
     const s = parseDate(startStr);
-    if (!s) return false;
+    if (!s) return null;
     const e = endStr ? parseDate(endStr) : new Date();
-    if (!e) return false;
-    return (e - s) / 3600000 > 24;
+    if (!e) return null;
+    return (e - s) / 3600000;
+  }
+
+  // Tiered severity by elapsed hours — highest threshold met wins.
+  function gapStyle(hours) {
+    if (hours === null) return '';
+    if (hours > 72) return ' style="background-color:#dc3545;color:#000"'; // red
+    if (hours > 48) return ' style="background-color:#fd7e14;color:#000"'; // orange
+    if (hours > 24) return ' style="background-color:#ffc107;color:#000"'; // yellow
+    return '';
   }
 
   // ── Table Rendering ───────────────────────────────────────────────────────────
@@ -585,18 +594,18 @@
         ? `<a href="${esc(pdfVal)}" target="_blank" style="color:#007bff;text-decoration:none;">View</a>`
         : '-';
 
-      // Each consecutive stage gap is checked independently — a cell turns
-      // red if *that specific* handoff took (or has been pending) over 24h.
-      const stAdminSent    = isOver24hBetween(row.timeGMT, row.tsAdminSent)         ? ' style="color:red"' : '';
-      const stCoReceived   = isOver24hBetween(row.tsAdminSent, row.tsCoReceived)    ? ' style="color:red"' : '';
-      const stTechReceived = isOver24hBetween(row.tsCoReceived, row.tsTechReceived) ? ' style="color:red"' : '';
+      // Each consecutive stage gap is checked independently — a cell is
+      // shaded by how far past 24/48/72h that specific handoff is.
+      const stAdminSent    = gapStyle(hoursBetween(row.timeGMT, row.tsAdminSent));
+      const stCoReceived   = gapStyle(hoursBetween(row.tsAdminSent, row.tsCoReceived));
+      const stTechReceived = gapStyle(hoursBetween(row.tsCoReceived, row.tsTechReceived));
       // Not Fixed and Fixed are checked independently against Tech Received.
       // Guarded with the field check first (not just relying on
-      // isOver24hBetween's own blank check) so a blank one — meaning that
+      // hoursBetween's own blank check) so a blank one — meaning that
       // outcome never happened for this ticket, not "still pending" — never
       // falls back to comparing against "now".
-      const stNotFixed = row.tsNotFixed && isOver24hBetween(row.tsTechReceived, row.tsNotFixed) ? ' style="color:red"' : '';
-      const stFixed    = row.tsFixed    && isOver24hBetween(row.tsTechReceived, row.tsFixed)    ? ' style="color:red"' : '';
+      const stNotFixed = row.tsNotFixed ? gapStyle(hoursBetween(row.tsTechReceived, row.tsNotFixed)) : '';
+      const stFixed    = row.tsFixed    ? gapStyle(hoursBetween(row.tsTechReceived, row.tsFixed))    : '';
 
       return `
       <tr>
