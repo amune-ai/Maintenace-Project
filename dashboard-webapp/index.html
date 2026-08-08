@@ -533,6 +533,33 @@
       .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
   }
 
+  // ── 24h stage-gap highlighting ──────────────────────────────────────────────
+  // Timestamps can arrive as either "yyyy-MM-dd HH:mm:ss" (cells Sheets
+  // auto-detected as Date type, normalized server-side) or
+  // "dd/MM/yyyy HH:mm:ss" (cells that stayed plain text) — handle both.
+  function parseDate(str) {
+    if (!str) return null;
+    let m = String(str).match(/^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})$/);
+    if (m) return new Date(+m[1], +m[2]-1, +m[3], +m[4], +m[5], +m[6]);
+    m = String(str).match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4}) (\d{1,2}):(\d{1,2}):(\d{1,2})$/);
+    if (m) {
+      const yyyy = m[3].length === 2 ? 2000 + +m[3] : +m[3];
+      return new Date(yyyy, +m[2]-1, +m[1], +m[4], +m[5], +m[6]);
+    }
+    return null;
+  }
+
+  // Gap between two stage timestamps. If endStr is blank (stage hasn't
+  // happened yet), compares against now — so a stage that's been pending
+  // too long gets flagged too, not just ones that were slow once completed.
+  function isOver24hBetween(startStr, endStr) {
+    const s = parseDate(startStr);
+    if (!s) return false;
+    const e = endStr ? parseDate(endStr) : new Date();
+    if (!e) return false;
+    return (e - s) / 3600000 > 24;
+  }
+
   // ── Table Rendering ───────────────────────────────────────────────────────────
   function renderTable() {
     const tbody = document.getElementById('tableBody');
@@ -557,16 +584,30 @@
       const pdfCell = pdfVal.trim() !== ''
         ? `<a href="${esc(pdfVal)}" target="_blank" style="color:#007bff;text-decoration:none;">View</a>`
         : '-';
+
+      // Each consecutive stage gap is checked independently — a cell turns
+      // red if *that specific* handoff took (or has been pending) over 24h.
+      const stAdminSent    = isOver24hBetween(row.timeGMT, row.tsAdminSent)         ? ' style="color:red"' : '';
+      const stCoReceived   = isOver24hBetween(row.tsAdminSent, row.tsCoReceived)    ? ' style="color:red"' : '';
+      const stTechReceived = isOver24hBetween(row.tsCoReceived, row.tsTechReceived) ? ' style="color:red"' : '';
+      // Not Fixed and Fixed are checked independently against Tech Received.
+      // Guarded with the field check first (not just relying on
+      // isOver24hBetween's own blank check) so a blank one — meaning that
+      // outcome never happened for this ticket, not "still pending" — never
+      // falls back to comparing against "now".
+      const stNotFixed = row.tsNotFixed && isOver24hBetween(row.tsTechReceived, row.tsNotFixed) ? ' style="color:red"' : '';
+      const stFixed    = row.tsFixed    && isOver24hBetween(row.tsTechReceived, row.tsFixed)    ? ' style="color:red"' : '';
+
       return `
       <tr>
         <td>${start + i + 1}</td>
         <td>${esc(row.supplier)}</td>
         <td>${esc(row.timeGMT)}</td>
-        <td>${esc(row.tsAdminSent)}</td>
-        <td>${esc(row.tsCoReceived)}</td>
-        <td>${esc(row.tsTechReceived)}</td>
-        <td>${esc(row.tsNotFixed)}</td>
-        <td>${esc(row.tsFixed)}</td>
+        <td${stAdminSent}>${esc(row.tsAdminSent)}</td>
+        <td${stCoReceived}>${esc(row.tsCoReceived)}</td>
+        <td${stTechReceived}>${esc(row.tsTechReceived)}</td>
+        <td${stNotFixed}>${esc(row.tsNotFixed)}</td>
+        <td${stFixed}>${esc(row.tsFixed)}</td>
         <td>${esc(row.center)}</td>
         <td>${esc(row.areaOfMalfunction)}</td>
         <td>${pdfCell}</td>
