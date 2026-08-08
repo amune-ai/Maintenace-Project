@@ -42,6 +42,7 @@ function doLogin(username, password) {
 // B=1  Time (GMT)
 // C=2  Governorate
 // D=3  Center
+// H=7  Area of Malfunction
 // I=8  Malfunction
 // L=11 Supplier
 // T=19 Company Name
@@ -52,12 +53,14 @@ function doLogin(username, password) {
 // AE=30 Fixed/Not Fixed
 // AH=33 TimeStamp of Not Fixed
 // AK=36 TimeStamp of Fixed
+// AP=41 Invoice File (pdf)
 
 const COL = {
   RESPONSE:       0,
   TIME_GMT:       1,
   GOVERNORATE:    2,
   CENTER:         3,
+  AREA_OF_MALFUNCTION: 7,
   MALFUNCTION:    8,
   SUPPLIER:       11,
   COMPANY:        19,
@@ -67,7 +70,8 @@ const COL = {
   TS_TECH_RECEIVED: 29,
   TECH_STATUS:    30,
   TS_NOT_FIXED:   33,
-  TS_FIXED:       36
+  TS_FIXED:       36,
+  PDF:            41
 };
 
 // ─── Raw DataCache read, shared by getFilterOptions/getDashboardData ─────────
@@ -256,7 +260,10 @@ function getDashboardData(filters, page) {
       tsCoReceived:      fmt(row[COL.TS_CO_RECEIVED]),
       tsTechReceived:    fmt(row[COL.TS_TECH_RECEIVED]),
       tsNotFixed:        fmt(row[COL.TS_NOT_FIXED]),
-      tsFixed:           fmt(row[COL.TS_FIXED])
+      tsFixed:           fmt(row[COL.TS_FIXED]),
+      center:            fmt(row[COL.CENTER]),
+      areaOfMalfunction: fmt(row[COL.AREA_OF_MALFUNCTION]),
+      pdf:               fmt(row[COL.PDF])
     }));
 
     return {
