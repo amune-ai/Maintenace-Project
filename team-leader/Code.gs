@@ -327,10 +327,21 @@ function submitData(rows, governate, tlName) {
     }
 
     if (rowIndex > 0) {
-      targetSheet.getRange(rowIndex, 1, 1, 1).setValue(code);
-      targetSheet.getRange(rowIndex, 2, 1, 1).setValue(row[14]);
-      targetSheet.getRange(rowIndex, 3, 1, 1).setValue(timestamp);
-      targetSheet.getRange(rowIndex, 24, 1, 1).setValue(tlName);
+      if (row[14] === 'Not Fixed') {
+        // Sent back for a second round: wipe the working columns and mark
+        // it as a re-submission rather than recording a normal TL review.
+        targetSheet.getRange(rowIndex, 4, 1, 21).clearContent(); // D:X
+        targetSheet.getRange(rowIndex, 25, 1, 1).setValue(code + '2ndtime'); // Y
+        targetSheet.getRange(rowIndex, 26, 1, 1).setValue('Not Fixed');      // Z
+        targetSheet.getRange(rowIndex, 27, 1, 1).setValue(timestamp);       // AA
+        targetSheet.getRange(rowIndex, 28, 1, 1).setValue(tlName);          // AB
+        targetSheet.getRange(rowIndex, 30, 1, 1).setValue('2nd time');      // AD
+      } else {
+        targetSheet.getRange(rowIndex, 1, 1, 1).setValue(code);
+        targetSheet.getRange(rowIndex, 2, 1, 1).setValue(row[14]);
+        targetSheet.getRange(rowIndex, 3, 1, 1).setValue(timestamp);
+        targetSheet.getRange(rowIndex, 24, 1, 1).setValue(tlName);
+      }
     } else {
       // rowIndex -1 not valid for setRange, skip or append
       Logger.log('Row not found for code: ' + code);
