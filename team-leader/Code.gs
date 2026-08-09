@@ -331,11 +331,11 @@ function submitData(rows, governate, tlName) {
         // Sent back for a second round: wipe the working columns and mark
         // it as a re-submission rather than recording a normal TL review.
         targetSheet.getRange(rowIndex, 4, 1, 21).clearContent(); // D:X
-        targetSheet.getRange(rowIndex, 25, 1, 1).setValue(code + '2ndtime'); // Y
-        targetSheet.getRange(rowIndex, 26, 1, 1).setValue('Not Fixed');      // Z
-        targetSheet.getRange(rowIndex, 27, 1, 1).setValue(timestamp);       // AA
-        targetSheet.getRange(rowIndex, 28, 1, 1).setValue(tlName);          // AB
-        targetSheet.getRange(rowIndex, 30, 1, 1).setValue('2nd time');      // AD
+        targetSheet.getRange(rowIndex, 30, 1, 1).setValue(code + '2ndtime'); // AD
+        targetSheet.getRange(rowIndex, 31, 1, 1).setValue('Not Fixed');      // AE
+        targetSheet.getRange(rowIndex, 32, 1, 1).setValue(timestamp);       // AF
+        targetSheet.getRange(rowIndex, 33, 1, 1).setValue(tlName);          // AG
+        targetSheet.getRange(rowIndex, 34, 1, 1).setValue('2nd time');      // AH
       } else {
         targetSheet.getRange(rowIndex, 1, 1, 1).setValue(code);
         targetSheet.getRange(rowIndex, 2, 1, 1).setValue(row[14]);
