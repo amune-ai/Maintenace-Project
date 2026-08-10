@@ -11,7 +11,7 @@
     .login-container { max-width: 400px; margin: 100px auto; }
     .table-container { margin: 20px 0; width: 100%; padding: 0 15px; }
     .checkbox-lg { transform: scale(2); display: block; margin: 0 auto; }
-    td:has(> .checkbox-lg) { text-align: center !important; vertical-align: middle !important; }
+    .chk-cell { text-align: center; vertical-align: middle; }
     .header-info {
       margin-bottom: 20px;
       border: 2px solid #007bff;
@@ -317,8 +317,8 @@
         const st = tlRowStyle(row[21], isOver24h(row[1]) ? ' style="color:red"' : '');
         rows.push(`<tr>
           ${buildTds(row, 22, st)}
-          <td${st}><input type="checkbox" class="checkbox-lg fixed" data-row='${esc(JSON.stringify(row))}'></td>
-          <td${st}><input type="checkbox" class="checkbox-lg not-fixed" data-row='${esc(JSON.stringify(row))}'></td>
+          <td class="chk-cell"${st}><input type="checkbox" class="checkbox-lg fixed" data-row='${esc(JSON.stringify(row))}'></td>
+          <td class="chk-cell"${st}><input type="checkbox" class="checkbox-lg not-fixed" data-row='${esc(JSON.stringify(row))}'></td>
         </tr>`);
       });
       $('#dataTable').html(rows.join(''));
@@ -349,7 +349,7 @@
         const st = tlRowStyle(row[23], isOver24hBetween(row[1], row[21]) ? ' style="color:red"' : '');
         rows.push(`<tr>
           ${buildTds(row, 24, st)}
-          <td${st}><input type="checkbox" class="checkbox-lg fixedC" data-row='${esc(JSON.stringify(row))}'></td>
+          <td class="chk-cell"${st}><input type="checkbox" class="checkbox-lg fixedC" data-row='${esc(JSON.stringify(row))}'></td>
         </tr>`);
       });
       $('#dataTableC').html(rows.join(''));

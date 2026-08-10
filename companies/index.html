@@ -11,7 +11,7 @@
     .login-container { max-width: 400px; margin: 100px auto; }
     .table-container { margin: 20px 0; width: 100%; padding: 0 15px; }
     .checkbox-lg { transform: scale(2); display: block; margin: 0 auto; }
-    td:has(> .checkbox-lg) { text-align: center !important; vertical-align: middle !important; }
+    .chk-cell { text-align: center; vertical-align: middle; }
     .header-info {
       margin-bottom: 20px;
       border: 2px solid #007bff;
@@ -379,8 +379,8 @@
         const st = tlRowStyle(row[17], over24 ? ' style="color:red"' : '');
         rows.push(`<tr>
           ${buildTds(row, 18, st)}
-          <td${st}><input type="checkbox" class="checkbox-lg received" data-row='${escJson(row)}'></td>
-          <td${st}><input type="checkbox" class="checkbox-lg reject"   data-row='${escJson(row)}'></td>
+          <td class="chk-cell"${st}><input type="checkbox" class="checkbox-lg received" data-row='${escJson(row)}'></td>
+          <td class="chk-cell"${st}><input type="checkbox" class="checkbox-lg reject"   data-row='${escJson(row)}'></td>
         </tr>`);
       });
       tbody.html(rows.join(''));
@@ -419,7 +419,7 @@
           ${buildTds(row, 20, st)}
           <td${st}>${esc(row[21])}</td>
           <td${st}>${selectHTML}</td>
-          <td${st}>${chkHTML}</td>
+          <td class="chk-cell"${st}>${chkHTML}</td>
         </tr>`);
       });
 

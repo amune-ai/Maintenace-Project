@@ -11,7 +11,7 @@
     .login-container { max-width: 400px; margin: 100px auto; }
     .table-container { margin: 20px 0; width: 100%; padding: 0 15px; }
     .checkbox-lg { transform: scale(2); display: block; margin: 0 auto; }
-    td:has(> .checkbox-lg) { text-align: center !important; vertical-align: middle !important; }
+    .chk-cell { text-align: center; vertical-align: middle; }
     .header-info {
       margin-bottom: 20px;
       border: 2px solid #007bff;
@@ -402,7 +402,7 @@
           <td${st}><select class="form-select company-dropdown" data-row='${escJson(row)}'>
             <option value="">Select Company</option>${opts}
           </select></td>
-          <td${st}><input type="checkbox" class="checkbox-lg sent" data-row='${escJson(row)}'></td>
+          <td class="chk-cell"${st}><input type="checkbox" class="checkbox-lg sent" data-row='${escJson(row)}'></td>
           <td${st}>${esc(row[16])}</td>
           <td${st}>${esc(row[17])}</td>
           <td${st}>${esc(row[18])}</td>
