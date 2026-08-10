@@ -611,7 +611,7 @@ function submitData(rows, governate, tlName) {
 
   rows.forEach(row => {
     const code       = row[13];
-    const fixedNotes = row[21];
+    const fixedNotes = row[row.length - 1]; // client always appends the reason/notes text last
     const timestamp  = new Date();
 
     const targetData = targetSheet.getDataRange().getValues();
@@ -649,7 +649,7 @@ function submitData(rows, governate, tlName) {
         targetSheet.getRange(rowIndex, 17, 1, 1).setValue(code);
         targetSheet.getRange(rowIndex, 18, 1, 1).setValue('Not Fixed');
         targetSheet.getRange(rowIndex, 20, 1, 1).setValue(timestamp);
-        targetSheet.getRange(rowIndex, 21, 1, 1).setValue(row[21]);
+        targetSheet.getRange(rowIndex, 21, 1, 1).setValue(row[row.length - 1]);
         targetSheet.getRange(rowIndex, 29, 1, 1).setValue(''); // empty
       }
     }
@@ -680,7 +680,7 @@ function submitData2(rows, governate, tlName) {
       let pdfUrl = '';
 
       try {
-        pdfUrl = generatePdf(row, timestamp, row[23]);        // ← now directly string
+        pdfUrl = generatePdf(row, timestamp, row[row.length - 1]); // client always appends the notes text last
         console.log('PDF created successfully: ' + pdfUrl);
       } catch(e) {
         Logger.log('PDF generation failed for code ' + code + ': ' + e.message);
@@ -690,7 +690,7 @@ function submitData2(rows, governate, tlName) {
       targetSheet.getRange(rowIndex, 18, 1, 1).setValue('Fixed');
       targetSheet.getRange(rowIndex, 20, 1, 1).setValue(row[21]);
       targetSheet.getRange(rowIndex, 21, 1, 1).setValue(row[22]);
-      targetSheet.getRange(rowIndex, 22, 1, 1).setValue(row[23]);
+      targetSheet.getRange(rowIndex, 22, 1, 1).setValue(row[row.length - 1]);
       targetSheet.getRange(rowIndex, 23, 1, 1).setValue(timestamp);
       targetSheet.getRange(rowIndex, 29, 1, 1).setValue(pdfUrl);
     }
