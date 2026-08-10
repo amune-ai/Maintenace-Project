@@ -72,9 +72,7 @@ const COL = {
   TS_NOT_FIXED:   33,
   TS_FIXED:       36,
   PDF:            41,
-  TL_NOTES_AQ:    42,
   TL_NOTES_AR:    43,
-  TL_NOTES_AT:    45,
   TL_NOTES_AU:    46
 };
 
@@ -279,7 +277,7 @@ function getDashboardData(filters, page) {
       center:            fmt(row[COL.CENTER]),
       areaOfMalfunction: fmt(row[COL.AREA_OF_MALFUNCTION]),
       pdf:               fmt(row[COL.PDF]),
-      tlNotes:           [row[COL.TL_NOTES_AQ], row[COL.TL_NOTES_AR], row[COL.TL_NOTES_AT], row[COL.TL_NOTES_AU]]
+      tlNotes:           [row[COL.TL_NOTES_AR], row[COL.TL_NOTES_AU]]
                             .map(fmt).filter(v => v !== '').join(' | ')
     }));
 

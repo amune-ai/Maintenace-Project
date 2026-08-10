@@ -32,16 +32,16 @@
       z-index: 10;
     }
     .table-fixed th { background-color: #cfe2f3; color: black; }
-    .table-pending td:nth-child(18) { text-align: center; vertical-align: middle; }
     .table-pending td:nth-child(19) { text-align: center; vertical-align: middle; }
+    .table-pending td:nth-child(20) { text-align: center; vertical-align: middle; }
     .table-pending thead tr th:nth-child(17) { background-color: #28a745; color: white; }
     .table-pending td:nth-child(17) {
       width: 280px !important; min-width: 250px !important; max-width: 320px;
       white-space: normal !important; word-break: break-word;
       padding: 10px 12px !important; line-height: 1.5; text-align: left !important;
     }
-    .table-pending thead tr th:nth-child(18) { background-color: #28a745; color: white; }
-    .table-pending thead tr th:nth-child(19) { background-color: #dc3545; color: white; }
+    .table-pending thead tr th:nth-child(19) { background-color: #28a745; color: white; }
+    .table-pending thead tr th:nth-child(20) { background-color: #dc3545; color: white; }
     .table-fixed thead tr th:nth-child(16) { background-color: #dc3545; color: white; }
     .table-fixed thead tr th:nth-child(17) { background-color: #dc3545; color: white; }
     .table-fixed thead tr th:nth-child(18) { background-color: #28a745; color: white; }
@@ -128,7 +128,7 @@
             <th>Area of Malfunction</th><th>Malfunction</th><th>Model</th>
             <th>Serial</th><th>Supplier</th><th>Recap Info</th><th>Code</th>
             <th>Technician Status</th><th>Reason</th><th>Fixed Notes</th>
-            <th>TL Notes</th>
+            <th style="background-color:orange;color:black;">TL Notes</th>
             <th>Fixed</th><th>Not Fixed</th>
           </tr></thead>
           <tbody id="dataTable"></tbody>
@@ -150,7 +150,7 @@
             <th>TimeStamp of Not Fixed</th><th>Reasons</th>
             <th>TimeStamp of Fixed</th><th>Fixed Notes</th>
             <th>Teamleader Review</th><th>Review TimeStamp</th><th>Teamleader Name</th><th>Invoice File</th>
-            <th>TL Notes</th>
+            <th style="background-color:orange;color:black;">TL Notes</th>
           </tr></thead>
           <tbody id="dataTable2"></tbody>
         </table>
@@ -201,6 +201,11 @@
       return s;
     }
 
+    // Entire row goes orange when TL Notes says the ticket was sent back a 2nd time
+    function tlRowStyle(tlNotesVal, fallback) {
+      return tlNotesVal === 'Not Fixed | 2nd time' ? ' style="color:orange"' : fallback;
+    }
+
     // ── MASTER LOAD: 1 server call ────────────────────────────────────────────
     function loadAllTables(governate, center) {
       Swal.fire({
@@ -231,7 +236,7 @@
     function renderTable1(data, governate, center) {
       const rows = [];
       data.forEach(row => {
-        const st = isOver24h(row[1]) ? ' style="color:red"' : '';
+        const st = tlRowStyle(row[17], isOver24h(row[1]) ? ' style="color:red"' : '');
         const techStatus = String(row[14] || '').trim();
         const isDisabled  = (!techStatus || techStatus === '' || techStatus === 'pending' || techStatus === 'Not Fixed') ? 'disabled' : '';
         const isNotFixedDisabled = (!techStatus || techStatus === '' ||
@@ -253,7 +258,7 @@
     function renderTable2(data) {
       const rows = data.map(row => {
         const isNotFixed = String(row[19] || '').toLowerCase().includes('not fixed');
-        const st = isNotFixed ? ' style="color:red"' : '';
+        const st = tlRowStyle(row[23], isNotFixed ? ' style="color:red"' : '');
 
         const lastVal = row[22] || '';
         const lastCell = lastVal.trim() !== ''

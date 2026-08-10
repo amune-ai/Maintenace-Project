@@ -165,7 +165,7 @@
             <th>Serial</th><th>Supplier</th><th>Recap Info</th><th>Code</th>
             <th>Companies</th><th>Sent</th>
             <th>Rejected Reason</th><th>Rejected TimeStamp</th><th>Rejected Company</th>
-            <th>TL Notes</th>
+            <th style="background-color:orange;color:black;">TL Notes</th>
           </tr></thead>
           <tbody id="dataTable"></tbody>
         </table>
@@ -183,7 +183,7 @@
             <th>Area of Malfunction</th><th>Malfunction</th><th>Model</th>
             <th>Serial</th><th>Supplier</th><th>Recap Info</th><th>Code</th>
             <th>Company Name</th><th>TimeStamp Admin Sent</th><th>Admin Name</th>
-            <th>TL Notes</th>
+            <th style="background-color:orange;color:black;">TL Notes</th>
           </tr></thead>
           <tbody id="dataTableB"></tbody>
         </table>
@@ -202,7 +202,7 @@
             <th>Serial</th><th>Supplier</th><th>Recap Info</th><th>Code</th>
             <th>Company Name</th><th>TimeStamp Admin Sent</th><th>Admin Name</th>
             <th>Company Received By</th><th>TimeStamp Company Received</th>
-            <th>TL Notes</th>
+            <th style="background-color:orange;color:black;">TL Notes</th>
           </tr></thead>
           <tbody id="dataTableC"></tbody>
         </table>
@@ -222,7 +222,7 @@
             <th>Company Name</th><th>TimeStamp Admin Sent</th><th>Admin Name</th>
             <th>Company Received By</th><th>TimeStamp Company Received</th>
             <th>Technician Name</th><th>TimeStamp Technician Received</th>
-            <th>TL Notes</th>
+            <th style="background-color:orange;color:black;">TL Notes</th>
           </tr></thead>
           <tbody id="dataTableD"></tbody>
         </table>
@@ -243,7 +243,7 @@
             <th>Company Received By</th><th>TimeStamp Company Received</th>
             <th>Technician Name</th><th>TimeStamp Technician Received</th>
             <th>TimeStamp of Not Fixed</th><th>Reasons</th>
-            <th>TL Notes</th>
+            <th style="background-color:orange;color:black;">TL Notes</th>
           </tr></thead>
           <tbody id="dataTableE"></tbody>
         </table>
@@ -265,7 +265,7 @@
             <th>Technician Name</th><th>TimeStamp Technician Received</th>
             <th>TimeStamp of Not Fixed</th><th>Reasons</th>
             <th>TimeStamp of Fixed</th><th>Fixed Notes</th><th>Invoice File</th>
-            <th>TL Notes</th>
+            <th style="background-color:orange;color:black;">TL Notes</th>
           </tr></thead>
           <tbody id="dataTableF"></tbody>
         </table>
@@ -286,7 +286,7 @@
             <th>TimeStamp of Not Fixed</th><th>Reasons</th>
             <th>TimeStamp of Fixed</th><th>Fixed Notes</th>
             <th>Teamleader Review</th><th>Review TimeStamp</th><th>Teamleader Name</th>
-            <th>TL Notes</th>
+            <th style="background-color:orange;color:black;">TL Notes</th>
           </tr></thead>
           <tbody id="dataTableTML"></tbody>
         </table>
@@ -350,6 +350,11 @@
       return s;
     }
 
+    // Entire row goes orange when TL Notes says the ticket was sent back a 2nd time
+    function tlRowStyle(tlNotesVal, fallback) {
+      return tlNotesVal === 'Not Fixed | 2nd time' ? ' style="color:orange"' : fallback;
+    }
+
     // ── MASTER LOAD: 1 server call ────────────────────────────────────────────
     function loadAllTables(governate, center) {
       Swal.fire({
@@ -387,7 +392,7 @@
       const tbody = $('#dataTable');
       const rows = [];
       data.forEach(row => {
-        const st = isOver24h(row[1]) ? ' style="color:red"' : '';
+        const st = tlRowStyle(row[19], isOver24h(row[1]) ? ' style="color:red"' : '');
         const opts = companiesList.map(c =>
           `<option value="${esc(c)}" ${row[14]===c?'selected':''}>${esc(c)}</option>`
         ).join('');
@@ -411,7 +416,7 @@
     // ── Render Table 2: Sent ──────────────────────────────────────────────────
     function renderTable2(data) {
       const rows = data.map(row => {
-        const st = isOver24hBetween(row[1], row[15]) ? ' style="color:red"' : '';
+        const st = tlRowStyle(row[17], isOver24hBetween(row[1], row[15]) ? ' style="color:red"' : '');
         return `<tr>${buildTds(row, 18, st)}</tr>`;
       });
       $('#dataTableB').html(rows.join(''));
@@ -420,7 +425,7 @@
     // ── Render Table 3: Company Received ─────────────────────────────────────
     function renderTable3(data) {
       const rows = data.map(row => {
-        const st = isOver24hBetween(row[1], row[18]) ? ' style="color:red"' : '';
+        const st = tlRowStyle(row[19], isOver24hBetween(row[1], row[18]) ? ' style="color:red"' : '');
         return `<tr>${buildTds(row, 20, st)}</tr>`;
       });
       $('#dataTableC').html(rows.join(''));
@@ -429,7 +434,7 @@
     // ── Render Table 4: Tech Received ─────────────────────────────────────────
     function renderTable4(data) {
       const rows = data.map(row => {
-        const st = isOver24hBetween(row[1], row[20]) ? ' style="color:red"' : '';
+        const st = tlRowStyle(row[21], isOver24hBetween(row[1], row[20]) ? ' style="color:red"' : '');
         return `<tr>${buildTds(row, 22, st)}</tr>`;
       });
       $('#dataTableD').html(rows.join(''));
@@ -438,7 +443,7 @@
     // ── Render Table 5: Not Fixed ─────────────────────────────────────────────
     function renderTable5(data) {
       const rows = data.map(row => {
-        const st = isOver24hBetween(row[1], row[21]) ? ' style="color:red"' : '';
+        const st = tlRowStyle(row[23], isOver24hBetween(row[1], row[21]) ? ' style="color:red"' : '');
         return `<tr>${buildTds(row, 24, st)}</tr>`;
       });
       $('#dataTableE').html(rows.join(''));
@@ -449,7 +454,7 @@
       const rows = data.map(row => {
         // const st = isOver24hBetween(row[1], row[21]) ? ' style="color:red"' : '';
         // return `<tr>${buildTds(row, 23, st)}</tr>`;
-        const st = isOver24hBetween(row[1], row[23]) ? ' style="color:red"' : '';
+        const st = tlRowStyle(row[26], isOver24hBetween(row[1], row[23]) ? ' style="color:red"' : '');
         const lastVal = row[25] || '';
         const lastCell = lastVal.trim() !== ''
           ? `<td${st}><a href="${esc(lastVal)}" target="_blank" style="color:#007bff;text-decoration:none;">View</a></td>`
@@ -462,8 +467,8 @@
     // ── Render Table TML ──────────────────────────────────────────────────────
     function renderTableTML(data) {
       const rows = data.map(row => {
-        const st = String(row[19] || '').toLowerCase().includes('not fixed')
-          ? ' style="color:red"' : '';
+        const st = tlRowStyle(row[22], String(row[19] || '').toLowerCase().includes('not fixed')
+          ? ' style="color:red"' : '');
         return `<tr>${buildTds(row, 23, st)}</tr>`;
       });
       $('#dataTableTML').html(rows.join(''));

@@ -56,8 +56,8 @@
     .tableE th:nth-child(13), .tableE td:nth-child(13),
     .table-tml th:nth-child(13), .table-tml td:nth-child(13) { display: none !important; }
 
-    .tableA thead tr th:nth-child(18) { background-color: #28a745; color: white; }
-    .tableA thead tr th:nth-child(19) { background-color: #dc3545; color: white; }
+    .tableA thead tr th:nth-child(19) { background-color: #28a745; color: white; }
+    .tableA thead tr th:nth-child(20) { background-color: #dc3545; color: white; }
 
     .header-table { width: 100%; max-width: 100%; border-collapse: collapse; }
     .header-table td { padding: 5px; }
@@ -79,7 +79,7 @@
       min-width: 200px; max-width: 300px;
       white-space: normal; overflow: visible;
     }
-    .tableB th:nth-child(21), .tableB td:nth-child(21) {
+    .tableB th:nth-child(22), .tableB td:nth-child(22) {
       min-width: 200px; max-width: 300px;
       white-space: normal; overflow: visible;
     }
@@ -172,7 +172,7 @@
             <th>Area of Malfunction</th><th>Malfunction</th><th>Model</th>
             <th>Serial</th><th>Supplier</th><th>Recap Info</th><th>Code</th>
             <th>Company Name</th><th>TimeStamp Admin Sent</th><th>Admin Name</th>
-            <th>TL Notes</th>
+            <th style="background-color:orange;color:black;">TL Notes</th>
             <th>Received</th><th>Reject</th>
           </tr></thead>
           <tbody id="dataTable"></tbody>
@@ -192,7 +192,7 @@
             <th>Serial</th><th>Supplier</th><th>Recap Info</th><th>Code</th>
             <th>Company Name</th><th>TimeStamp Admin Sent</th><th>Admin Name</th>
             <th>Status</th><th>Company Received By</th><th>TimeStamp Company Received</th>
-            <th>TL Notes</th><th>Technician Name</th><th>Assign</th>
+            <th style="background-color:orange;color:black;">TL Notes</th><th>Technician Name</th><th>Assign</th>
           </tr></thead>
           <tbody id="dataTableB"></tbody>
         </table>
@@ -212,7 +212,7 @@
             <th>Company Name</th><th>TimeStamp Admin Sent</th><th>Admin Name</th>
             <th>Company Received By</th><th>TimeStamp Company Received</th>
             <th>Technician Name</th><th>TimeStamp Technician Received</th>
-            <th>TL Notes</th>
+            <th style="background-color:orange;color:black;">TL Notes</th>
           </tr></thead>
           <tbody id="dataTableC"></tbody>
         </table>
@@ -233,7 +233,7 @@
             <th>Company Received By</th><th>TimeStamp Company Received</th>
             <th>Technician Name</th><th>TimeStamp Technician Received</th>
             <th>TimeStamp of Not Fixed</th><th>Reasons</th>
-            <th>TL Notes</th>
+            <th style="background-color:orange;color:black;">TL Notes</th>
           </tr></thead>
           <tbody id="dataTableD"></tbody>
         </table>
@@ -255,7 +255,7 @@
             <th>Technician Name</th><th>TimeStamp Technician Received</th>
             <th>TimeStamp of Not Fixed</th><th>Reasons</th>
             <th>TimeStamp of Fixed</th><th>Fixed Notes</th><th>Invoice File</th>
-            <th>TL Notes</th>
+            <th style="background-color:orange;color:black;">TL Notes</th>
           </tr></thead>
           <tbody id="dataTableE"></tbody>
         </table>
@@ -276,7 +276,7 @@
             <th>TimeStamp of Not Fixed</th><th>Reasons</th>
             <th>TimeStamp of Fixed</th><th>Fixed Notes</th>
             <th>Teamleader Review</th><th>Review TimeStamp</th><th>Teamleader Name</th>
-            <th>TL Notes</th>
+            <th style="background-color:orange;color:black;">TL Notes</th>
           </tr></thead>
           <tbody id="dataTableTML"></tbody>
         </table>
@@ -362,6 +362,11 @@
         .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
     }
 
+    // Entire row goes orange when TL Notes says the ticket was sent back a 2nd time
+    function tlRowStyle(tlNotesVal, fallback) {
+      return tlNotesVal === 'Not Fixed | 2nd time' ? ' style="color:orange"' : fallback;
+    }
+
     // ── Render Table 1 ────────────────────────────────────────────────────────
     function renderTable1(data, governate, center) {
       const now = new Date();
@@ -370,7 +375,7 @@
       data.forEach(row => {
         const t = parseDateClient(row[1]);
         const over24 = t && ((now - t) / 3_600_000 > 24);
-        const st = over24 ? ' style="color:red"' : '';
+        const st = tlRowStyle(row[17], over24 ? ' style="color:red"' : '');
         rows.push(`<tr>
           ${buildTds(row, 18, st)}
           <td${st}><input type="checkbox" class="checkbox-lg received" data-row='${escJson(row)}'></td>
@@ -394,7 +399,7 @@
         const submitT   = parseDateClient(row[1]);
         const noReceived = !row[20] || row[20].trim() === ''; // index 20 = Timestamp Company Received
         const over24    = submitT && noReceived && ((now - submitT) / 3_600_000 > 24);
-        const st        = over24 ? ' style="color:red"' : '';
+        const st        = tlRowStyle(row[21], over24 ? ' style="color:red"' : '');
 
         let selectHTML;
         if (isRejected) {
@@ -438,7 +443,7 @@
             over24 = (receivedT - submitT) / 3_600_000 > 24;
           }
         }
-        const st = over24 ? ' style="color:red"' : '';
+        const st = tlRowStyle(row[21], over24 ? ' style="color:red"' : '');
         rows.push(`<tr>${buildTds(row, 22, st)}</tr>`);
       });
       tbody.html(rows.join(''));
@@ -446,7 +451,7 @@
 
     // ── Render Table 4 ────────────────────────────────────────────────────────
     function renderTable4(data) {
-      const rows = data.map(row => `<tr>${buildTds(row, 24, '')}</tr>`);
+      const rows = data.map(row => `<tr>${buildTds(row, 24, tlRowStyle(row[23], ''))}</tr>`);
       $('#dataTableD').html(rows.join(''));
     }
 
@@ -457,7 +462,7 @@
       const rows = data.map(row => {
         // const st = isOver24hBetween(row[1], row[21]) ? ' style="color:red"' : '';
         // return `<tr>${buildTds(row, 23, st)}</tr>`;
-        const st = isOver24hBetween(row[1], row[23]) ? ' style="color:red"' : '';
+        const st = tlRowStyle(row[26], isOver24hBetween(row[1], row[23]) ? ' style="color:red"' : '');
         const lastVal = row[25] || '';
         const lastCell = lastVal.trim() !== ''
           ? `<td${st}><a href="${esc(lastVal)}" target="_blank" style="color:#007bff;text-decoration:none;">View</a></td>`
@@ -471,7 +476,7 @@
     function renderTableTML(data) {
       const rows = data.map(row => {
         const isNotFixed = String(row[19] || '').toLowerCase().includes('not fixed');
-        const st = isNotFixed ? ' style="color:red"' : '';
+        const st = tlRowStyle(row[22], isNotFixed ? ' style="color:red"' : '');
         return `<tr>${buildTds(row, 23, st)}</tr>`;
       });
       $('#dataTableTML').html(rows.join(''));

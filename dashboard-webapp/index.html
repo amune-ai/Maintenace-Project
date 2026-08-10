@@ -391,7 +391,7 @@
               <th>Governorate - Center</th>
               <th>Area of Malfunction</th>
               <th>Invoice File</th>
-              <th>TL Notes</th>
+              <th style="background-color:orange;color:black;">TL Notes</th>
             </tr>
           </thead>
           <tbody id="tableBody">
@@ -658,33 +658,39 @@
         ? `<a href="${esc(pdfVal)}" target="_blank" style="color:#007bff;text-decoration:none;">View</a>`
         : '-';
 
+      // Entire row goes orange when TL Notes says the ticket was sent back a
+      // 2nd time — this overrides the per-cell gap shading below.
+      const orangeRow = row.tlNotes === 'Not Fixed | 2nd time';
+      const rowSt = ' style="color:orange"';
+
       // Each consecutive stage gap is checked independently — a cell is
       // shaded by how far past 24/48/72h that specific handoff is.
-      const stAdminSent    = gapStyle(hoursBetween(row.timeGMT, row.tsAdminSent));
-      const stCoReceived   = gapStyle(hoursBetween(row.tsAdminSent, row.tsCoReceived));
-      const stTechReceived = gapStyle(hoursBetween(row.tsCoReceived, row.tsTechReceived));
+      const stAdminSent    = orangeRow ? rowSt : gapStyle(hoursBetween(row.timeGMT, row.tsAdminSent));
+      const stCoReceived   = orangeRow ? rowSt : gapStyle(hoursBetween(row.tsAdminSent, row.tsCoReceived));
+      const stTechReceived = orangeRow ? rowSt : gapStyle(hoursBetween(row.tsCoReceived, row.tsTechReceived));
       // Not Fixed and Fixed are checked independently against Tech Received.
       // Guarded with the field check first (not just relying on
       // hoursBetween's own blank check) so a blank one — meaning that
       // outcome never happened for this ticket, not "still pending" — never
       // falls back to comparing against "now".
-      const stNotFixed = row.tsNotFixed ? gapStyle(hoursBetween(row.tsTechReceived, row.tsNotFixed)) : '';
-      const stFixed    = row.tsFixed    ? gapStyle(hoursBetween(row.tsTechReceived, row.tsFixed))    : '';
+      const stNotFixed = orangeRow ? rowSt : (row.tsNotFixed ? gapStyle(hoursBetween(row.tsTechReceived, row.tsNotFixed)) : '');
+      const stFixed    = orangeRow ? rowSt : (row.tsFixed    ? gapStyle(hoursBetween(row.tsTechReceived, row.tsFixed))    : '');
+      const stPlain    = orangeRow ? rowSt : '';
 
       return `
       <tr>
-        <td>${start + i + 1}</td>
-        <td>${esc(row.supplier)}</td>
-        <td>${esc(row.timeGMT)}</td>
+        <td${stPlain}>${start + i + 1}</td>
+        <td${stPlain}>${esc(row.supplier)}</td>
+        <td${stPlain}>${esc(row.timeGMT)}</td>
         <td${stAdminSent}>${esc(row.tsAdminSent)}</td>
         <td${stCoReceived}>${esc(row.tsCoReceived)}</td>
         <td${stTechReceived}>${esc(row.tsTechReceived)}</td>
         <td${stNotFixed}>${esc(row.tsNotFixed)}</td>
         <td${stFixed}>${esc(row.tsFixed)}</td>
-        <td>${esc(joinNonEmpty([row.governorate, row.center], ' - '))}</td>
-        <td>${esc(row.areaOfMalfunction)}</td>
-        <td>${pdfCell}</td>
-        <td>${esc(row.tlNotes)}</td>
+        <td${stPlain}>${esc(joinNonEmpty([row.governorate, row.center], ' - '))}</td>
+        <td${stPlain}>${esc(row.areaOfMalfunction)}</td>
+        <td${stPlain}>${pdfCell}</td>
+        <td${stPlain}>${esc(row.tlNotes)}</td>
       </tr>
     `;
     }).join('');

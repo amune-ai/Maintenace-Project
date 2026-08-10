@@ -56,9 +56,9 @@
       white-space: normal !important; word-break: break-word;
       padding: 10px 12px !important; line-height: 1.5; text-align: left !important;
     }
-    .tableA thead tr th:nth-child(22) { background-color: #28a745; color: white; }
-    .tableA thead tr th:nth-child(23) { background-color: #dc3545; color: white; }
-    .tableC thead tr th:nth-child(24) { background-color: #28a745; color: white; }
+    .tableA thead tr th:nth-child(23) { background-color: #28a745; color: white; }
+    .tableA thead tr th:nth-child(24) { background-color: #dc3545; color: white; }
+    .tableC thead tr th:nth-child(25) { background-color: #28a745; color: white; }
     .table-tml th { background-color: #cfe2f3; color: black }
     .table td:nth-child(12), .table td:nth-child(13), .table td:nth-child(14),
     .table td:nth-child(15), .table td:nth-child(16), .table td:nth-child(17),
@@ -154,7 +154,7 @@
             <th>Company Name</th><th>TimeStamp Admin Sent</th><th>Admin Name</th>
             <th>Company Received By</th><th>TimeStamp Company Received</th>
             <th>Technician Name</th><th>TimeStamp Technician Received</th>
-            <th>TL Notes</th>
+            <th style="background-color:orange;color:black;">TL Notes</th>
             <th>Fixed</th><th>Not Fixed</th>
           </tr></thead>
           <tbody id="dataTable"></tbody>
@@ -177,7 +177,7 @@
             <th>Technician Name</th><th>TimeStamp Technician Received</th>
             <th>TimeStamp of Not Fixed</th><th>Reasons</th>
             <th>TimeStamp of Fixed</th><th>Fixed Notes</th><th>Invoice File</th>
-            <th>TL Notes</th>
+            <th style="background-color:orange;color:black;">TL Notes</th>
           </tr></thead>
           <tbody id="dataTableB"></tbody>
         </table>
@@ -198,7 +198,7 @@
             <th>Company Received By</th><th>TimeStamp Company Received</th>
             <th>Technician Name</th><th>TimeStamp Technician Received</th>
             <th>TimeStamp of Not Fixed</th><th>Reasons</th>
-            <th>TL Notes</th><th>Fixed</th>
+            <th style="background-color:orange;color:black;">TL Notes</th><th>Fixed</th>
           </tr></thead>
           <tbody id="dataTableC"></tbody>
         </table>
@@ -219,7 +219,7 @@
             <th>TimeStamp of Not Fixed</th><th>Reasons</th>
             <th>TimeStamp of Fixed</th><th>Fixed Notes</th>
             <th>Teamleader Review</th><th>Review TimeStamp</th><th>Teamleader Name</th>
-            <th>TL Notes</th>
+            <th style="background-color:orange;color:black;">TL Notes</th>
           </tr></thead>
           <tbody id="dataTableTML"></tbody>
         </table>
@@ -276,6 +276,11 @@
       return s;
     }
 
+    // Entire row goes orange when TL Notes says the ticket was sent back a 2nd time
+    function tlRowStyle(tlNotesVal, fallback) {
+      return tlNotesVal === 'Not Fixed | 2nd time' ? ' style="color:orange"' : fallback;
+    }
+
     // ── MASTER LOAD: 1 server call ────────────────────────────────────────────
     function loadAllTables(governate, center) {
       Swal.fire({
@@ -308,7 +313,7 @@
     function renderTable1(data, governate, center) {
       const rows = [];
       data.forEach(row => {
-        const st = isOver24h(row[1]) ? ' style="color:red"' : '';
+        const st = tlRowStyle(row[21], isOver24h(row[1]) ? ' style="color:red"' : '');
         rows.push(`<tr>
           ${buildTds(row, 22, st)}
           <td${st}><input type="checkbox" class="checkbox-lg fixed" data-row='${esc(JSON.stringify(row))}'></td>
@@ -326,7 +331,7 @@
         console.log("row[22]: " + row[22])
         console.log("row[23]: " + row[23])
 
-        const st = isOver24hBetween(row[1], row[23]) ? ' style="color:red"' : '';
+        const st = tlRowStyle(row[26], isOver24hBetween(row[1], row[23]) ? ' style="color:red"' : '');
         const lastVal = row[25] || '';
         const lastCell = lastVal.trim() !== ''
           ? `<td${st}><a href="${esc(lastVal)}" target="_blank" style="color:#007bff;text-decoration:none;">View</a></td>`
@@ -340,7 +345,7 @@
     function renderTable3(data, governate, center) {
       const rows = [];
       data.forEach(row => {
-        const st = isOver24hBetween(row[1], row[21]) ? ' style="color:red"' : '';
+        const st = tlRowStyle(row[23], isOver24hBetween(row[1], row[21]) ? ' style="color:red"' : '');
         rows.push(`<tr>
           ${buildTds(row, 24, st)}
           <td${st}><input type="checkbox" class="checkbox-lg fixedC" data-row='${esc(JSON.stringify(row))}'></td>
@@ -353,8 +358,8 @@
     // ── Render Table TML ──────────────────────────────────────────────────────
     function renderTableTML(data) {
       const rows = data.map(row => {
-        const st = String(row[19] || '').toLowerCase().includes('not fixed')
-          ? ' style="color:red"' : '';
+        const st = tlRowStyle(row[22], String(row[19] || '').toLowerCase().includes('not fixed')
+          ? ' style="color:red"' : '');
         return `<tr>${buildTds(row, 23, st)}</tr>`;
       });
       $('#dataTableTML').html(rows.join(''));

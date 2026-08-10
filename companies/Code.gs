@@ -330,9 +330,9 @@ function readDataCache() {
 // ═════════════════════════════════════════════════════════════════════════════
 // MASTER FETCH: filter from DataCache, send all tables at once
 // ═════════════════════════════════════════════════════════════════════════════
-// TL Notes: combines AQ, AR, AT, AU (skips AS) into one display string
+// TL Notes: combines AR (Not Fixed) + AU (2nd time) into one display string
 function tlNotes(r) {
-  return [r[42], r[43], r[45], r[46]].filter(v => v && String(v).trim() !== '').join(' | ');
+  return [r[43], r[46]].filter(v => v && String(v).trim() !== '').join(' | ');
 }
 
 function getAllTableData(governate, center, currentAdminName) {

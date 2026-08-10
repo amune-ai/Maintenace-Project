@@ -461,9 +461,9 @@ function getCompleteRowFromTable2(table2Sheet, rowDataFromSubmit, ts, fn) {
 function getAllTableData(governate, center, currentAdminName) {
   const rows = readDataCache();
 
-  // TL Notes: combines AQ, AR, AT, AU (skips AS) into one display string
+  // TL Notes: combines AR (Not Fixed) + AU (2nd time) into one display string
   function tlNotes(r) {
-    return [r[42], r[43], r[45], r[46]].filter(v => v && String(v).trim() !== '').join(' | ');
+    return [r[43], r[46]].filter(v => v && String(v).trim() !== '').join(' | ');
   }
 
   // Single pass over the cache: each row is checked against all 4 table
