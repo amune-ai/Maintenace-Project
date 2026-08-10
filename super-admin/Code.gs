@@ -295,7 +295,7 @@ function getAllTableData(center) {
 
     // TABLE 1: Rejected — col[18]='pending', col[38] (company reject) or
     // col[43]/AR (TL not-fixed 2nd-time) has content
-    if (r[18] === 'pending' && (r[38] !== '' || r[43] !== '')) {
+    if (r[18] === 'pending' && ((r[38] && String(r[38]).trim() !== '') || (r[43] && String(r[43]).trim() !== ''))) {
       table1.push([
         ...r.slice(0, 14),
         r[19] || '',   // Companies
