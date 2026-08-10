@@ -293,8 +293,9 @@ function getAllTableData(center) {
     const r = rows[i];
     if (center && r[3] !== center) continue;
 
-    // TABLE 1: Rejected — col[18]='pending', col[38] has content (reject reason)
-    if (r[18] === 'pending' && r[38] !== '') {
+    // TABLE 1: Rejected — col[18]='pending', col[38] (company reject) or
+    // col[43]/AR (TL not-fixed 2nd-time) has content
+    if (r[18] === 'pending' && (r[38] !== '' || r[43] !== '')) {
       table1.push([
         ...r.slice(0, 14),
         r[19] || '',   // Companies
