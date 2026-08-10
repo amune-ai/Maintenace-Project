@@ -154,7 +154,7 @@
             <th>Company Name</th><th>TimeStamp Admin Sent</th><th>Admin Name</th>
             <th>Company Received By</th><th>TimeStamp Company Received</th>
             <th>Technician Name</th><th>TimeStamp Technician Received</th>
-            <th style="background-color:orange;color:black;">TL Notes</th>
+            <th style="background-color:#a64d79;color:white;">TL Notes</th>
             <th>Fixed</th><th>Not Fixed</th>
           </tr></thead>
           <tbody id="dataTable"></tbody>
@@ -177,7 +177,7 @@
             <th>Technician Name</th><th>TimeStamp Technician Received</th>
             <th>TimeStamp of Not Fixed</th><th>Reasons</th>
             <th>TimeStamp of Fixed</th><th>Fixed Notes</th><th>Invoice File</th>
-            <th style="background-color:orange;color:black;">TL Notes</th>
+            <th style="background-color:#a64d79;color:white;">TL Notes</th>
           </tr></thead>
           <tbody id="dataTableB"></tbody>
         </table>
@@ -198,7 +198,7 @@
             <th>Company Received By</th><th>TimeStamp Company Received</th>
             <th>Technician Name</th><th>TimeStamp Technician Received</th>
             <th>TimeStamp of Not Fixed</th><th>Reasons</th>
-            <th style="background-color:orange;color:black;">TL Notes</th><th>Fixed</th>
+            <th style="background-color:#a64d79;color:white;">TL Notes</th><th>Fixed</th>
           </tr></thead>
           <tbody id="dataTableC"></tbody>
         </table>
@@ -219,7 +219,7 @@
             <th>TimeStamp of Not Fixed</th><th>Reasons</th>
             <th>TimeStamp of Fixed</th><th>Fixed Notes</th>
             <th>Teamleader Review</th><th>Review TimeStamp</th><th>Teamleader Name</th>
-            <th style="background-color:orange;color:black;">TL Notes</th>
+            <th style="background-color:#a64d79;color:white;">TL Notes</th>
           </tr></thead>
           <tbody id="dataTableTML"></tbody>
         </table>
@@ -278,7 +278,7 @@
 
     // Entire row goes orange when TL Notes says the ticket was sent back a 2nd time
     function tlRowStyle(tlNotesVal, fallback) {
-      return tlNotesVal === 'Not Fixed | 2nd time' ? ' style="color:orange"' : fallback;
+      return tlNotesVal === 'Not Fixed | 2nd time' ? ' style="color:#a64d79"' : fallback;
     }
 
     // ── MASTER LOAD: 1 server call ────────────────────────────────────────────

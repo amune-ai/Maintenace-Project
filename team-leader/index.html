@@ -128,7 +128,7 @@
             <th>Area of Malfunction</th><th>Malfunction</th><th>Model</th>
             <th>Serial</th><th>Supplier</th><th>Recap Info</th><th>Code</th>
             <th>Technician Status</th><th>Reason</th><th>Fixed Notes</th>
-            <th style="background-color:orange;color:black;">TL Notes</th>
+            <th style="background-color:#a64d79;color:white;">TL Notes</th>
             <th>Fixed</th><th>Not Fixed</th>
           </tr></thead>
           <tbody id="dataTable"></tbody>
@@ -150,7 +150,7 @@
             <th>TimeStamp of Not Fixed</th><th>Reasons</th>
             <th>TimeStamp of Fixed</th><th>Fixed Notes</th>
             <th>Teamleader Review</th><th>Review TimeStamp</th><th>Teamleader Name</th><th>Invoice File</th>
-            <th style="background-color:orange;color:black;">TL Notes</th>
+            <th style="background-color:#a64d79;color:white;">TL Notes</th>
           </tr></thead>
           <tbody id="dataTable2"></tbody>
         </table>
@@ -203,7 +203,7 @@
 
     // Entire row goes orange when TL Notes says the ticket was sent back a 2nd time
     function tlRowStyle(tlNotesVal, fallback) {
-      return tlNotesVal === 'Not Fixed | 2nd time' ? ' style="color:orange"' : fallback;
+      return tlNotesVal === 'Not Fixed | 2nd time' ? ' style="color:#a64d79"' : fallback;
     }
 
     // ── MASTER LOAD: 1 server call ────────────────────────────────────────────
