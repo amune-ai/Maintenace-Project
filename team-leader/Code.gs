@@ -338,6 +338,7 @@ function submitData(rows, governate, tlName) {
         // Sent back for a second round: wipe the working columns and mark
         // it as a re-submission rather than recording a normal TL review.
         targetSheet.getRange(rowIndex, 4, 1, 21).clearContent(); // D:X
+        targetSheet.getRange(rowIndex, 29, 1, 1).clearContent(); // AC — old PDF link
         targetSheet.getRange(rowIndex, 30, 1, 1).setValue(code);          // AD
         targetSheet.getRange(rowIndex, 31, 1, 1).setValue(row[11] || ''); // AE — Rejected Company (Supplier)
         targetSheet.getRange(rowIndex, 32, 1, 1).setValue('Not Fixed');   // AF
