@@ -618,7 +618,7 @@ function submitData(rows, governate, tlName) {
     let rowIndex = -1;
 
     for (let i = 2; i < targetData.length; i++) {   // start from row 3
-      if (targetData[i][3] === code) {
+      if (targetData[i][3] === code || targetData[i][29] === code) { // idx29 = AD, 2nd-round tickets only have their code there
         rowIndex = i + 1;
         break;
       }
@@ -671,7 +671,7 @@ function submitData2(rows, governate, tlName) {
     const targetData = targetSheet.getDataRange().getValues();
     let rowIndex = -1;
     for (let i = 1; i < targetData.length; i++) {
-      if (targetData[i][16] === code) { rowIndex = i + 1; break; }
+      if (targetData[i][16] === code || targetData[i][29] === code) { rowIndex = i + 1; break; } // idx29 = AD, 2nd-round tickets only have their code there
     }
 
     if (rowIndex > 0) {

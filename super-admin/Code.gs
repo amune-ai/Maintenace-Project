@@ -434,7 +434,7 @@ function submitData(rows, governate, adminName, saveUsername) {
     let rowIndex = -1;
     for (let i = 2; i < targetData.length; i++) {
       console.log("targetData[i][24]: ", targetData[i][24])
-      if (targetData[i][24] === code) { rowIndex = i + 1; break; }
+      if (targetData[i][24] === code || targetData[i][29] === code) { rowIndex = i + 1; break; }
     }
     console.log("rowIndex: ", rowIndex)
     console.log("code: ", code)

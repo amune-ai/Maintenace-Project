@@ -487,10 +487,11 @@ function submitStatusA(rows, governate, adminName, status, saveUsername) {
     const companies = row[14];
     const timestamp = new Date();
 
-    const colD = targetSheet.getRange(1, 4, targetSheet.getLastRow(), 1).getValues();
+    const colD  = targetSheet.getRange(1, 4,  targetSheet.getLastRow(), 1).getValues();
+    const colAD = targetSheet.getRange(1, 30, targetSheet.getLastRow(), 1).getValues(); // 2nd-round tickets only have their code here, D got wiped
     let rowIndex = -1;
     for (let i = 1; i < colD.length; i++) {
-      if (colD[i][0] === code) { rowIndex = i + 1; break; }
+      if (colD[i][0] === code || colAD[i][0] === code) { rowIndex = i + 1; break; }
     }
 
     if (rowIndex > 0) {
@@ -533,10 +534,11 @@ function submitStatusB(rows, governate, adminName, status, saveUsername) {
     const companies = row[14];
     const timestamp = new Date();
 
-    const colD = targetSheet.getRange(1, 4, targetSheet.getLastRow(), 1).getValues();
+    const colD  = targetSheet.getRange(1, 4,  targetSheet.getLastRow(), 1).getValues();
+    const colAD = targetSheet.getRange(1, 30, targetSheet.getLastRow(), 1).getValues(); // 2nd-round tickets only have their code here, D got wiped
     let rowIndex = -1;
     for (let i = 1; i < colD.length; i++) {
-      if (colD[i][0] === code) { rowIndex = i + 1; break; }
+      if (colD[i][0] === code || colAD[i][0] === code) { rowIndex = i + 1; break; }
     }
 
     if (rowIndex > 0) {

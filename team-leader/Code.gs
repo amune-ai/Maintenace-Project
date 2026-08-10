@@ -330,7 +330,7 @@ function submitData(rows, governate, tlName) {
     const targetData = targetSheet.getDataRange().getValues();
     let rowIndex = -1;
     for (let i = 1; i < targetData.length; i++) {
-      if (targetData[i][12] === code) { rowIndex = i + 1; break; }
+      if (targetData[i][12] === code || targetData[i][29] === code) { rowIndex = i + 1; break; } // idx29 = AD, a prior Not-Fixed round wipes M so later rounds must fall back to matching AD
     }
 
     if (rowIndex > 0) {
