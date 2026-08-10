@@ -331,7 +331,7 @@ function submitData(rows, governate, tlName) {
         // Sent back for a second round: wipe the working columns and mark
         // it as a re-submission rather than recording a normal TL review.
         targetSheet.getRange(rowIndex, 4, 1, 21).clearContent(); // D:X
-        targetSheet.getRange(rowIndex, 30, 1, 1).setValue(code + '2ndtime'); // AD
+        targetSheet.getRange(rowIndex, 30, 1, 1).setValue(code); // AD
         targetSheet.getRange(rowIndex, 31, 1, 1).setValue('Not Fixed');      // AE
         targetSheet.getRange(rowIndex, 32, 1, 1).setValue(timestamp);       // AF
         targetSheet.getRange(rowIndex, 33, 1, 1).setValue(tlName);          // AG
