@@ -172,6 +172,7 @@
             <th>Area of Malfunction</th><th>Malfunction</th><th>Model</th>
             <th>Serial</th><th>Supplier</th><th>Recap Info</th><th>Code</th>
             <th>Company Name</th><th>TimeStamp Admin Sent</th><th>Admin Name</th>
+            <th>TL Notes</th>
             <th>Received</th><th>Reject</th>
           </tr></thead>
           <tbody id="dataTable"></tbody>
@@ -191,7 +192,7 @@
             <th>Serial</th><th>Supplier</th><th>Recap Info</th><th>Code</th>
             <th>Company Name</th><th>TimeStamp Admin Sent</th><th>Admin Name</th>
             <th>Status</th><th>Company Received By</th><th>TimeStamp Company Received</th>
-            <th>Technician Name</th><th>Assign</th>
+            <th>TL Notes</th><th>Technician Name</th><th>Assign</th>
           </tr></thead>
           <tbody id="dataTableB"></tbody>
         </table>
@@ -211,6 +212,7 @@
             <th>Company Name</th><th>TimeStamp Admin Sent</th><th>Admin Name</th>
             <th>Company Received By</th><th>TimeStamp Company Received</th>
             <th>Technician Name</th><th>TimeStamp Technician Received</th>
+            <th>TL Notes</th>
           </tr></thead>
           <tbody id="dataTableC"></tbody>
         </table>
@@ -231,6 +233,7 @@
             <th>Company Received By</th><th>TimeStamp Company Received</th>
             <th>Technician Name</th><th>TimeStamp Technician Received</th>
             <th>TimeStamp of Not Fixed</th><th>Reasons</th>
+            <th>TL Notes</th>
           </tr></thead>
           <tbody id="dataTableD"></tbody>
         </table>
@@ -252,6 +255,7 @@
             <th>Technician Name</th><th>TimeStamp Technician Received</th>
             <th>TimeStamp of Not Fixed</th><th>Reasons</th>
             <th>TimeStamp of Fixed</th><th>Fixed Notes</th><th>Invoice File</th>
+            <th>TL Notes</th>
           </tr></thead>
           <tbody id="dataTableE"></tbody>
         </table>
@@ -272,6 +276,7 @@
             <th>TimeStamp of Not Fixed</th><th>Reasons</th>
             <th>TimeStamp of Fixed</th><th>Fixed Notes</th>
             <th>Teamleader Review</th><th>Review TimeStamp</th><th>Teamleader Name</th>
+            <th>TL Notes</th>
           </tr></thead>
           <tbody id="dataTableTML"></tbody>
         </table>
@@ -367,7 +372,7 @@
         const over24 = t && ((now - t) / 3_600_000 > 24);
         const st = over24 ? ' style="color:red"' : '';
         rows.push(`<tr>
-          ${buildTds(row, 17, st)}
+          ${buildTds(row, 18, st)}
           <td${st}><input type="checkbox" class="checkbox-lg received" data-row='${escJson(row)}'></td>
           <td${st}><input type="checkbox" class="checkbox-lg reject"   data-row='${escJson(row)}'></td>
         </tr>`);
@@ -406,6 +411,7 @@
 
         rowsProper.push(`<tr>
           ${buildTds(row, 20, st)}
+          <td${st}>${esc(row[21])}</td>
           <td${st}>${selectHTML}</td>
           <td${st}>${chkHTML}</td>
         </tr>`);
@@ -433,14 +439,14 @@
           }
         }
         const st = over24 ? ' style="color:red"' : '';
-        rows.push(`<tr>${buildTds(row, 21, st)}</tr>`);
+        rows.push(`<tr>${buildTds(row, 22, st)}</tr>`);
       });
       tbody.html(rows.join(''));
     }
 
     // ── Render Table 4 ────────────────────────────────────────────────────────
     function renderTable4(data) {
-      const rows = data.map(row => `<tr>${buildTds(row, 23, '')}</tr>`);
+      const rows = data.map(row => `<tr>${buildTds(row, 24, '')}</tr>`);
       $('#dataTableD').html(rows.join(''));
     }
 
@@ -456,7 +462,7 @@
         const lastCell = lastVal.trim() !== ''
           ? `<td${st}><a href="${esc(lastVal)}" target="_blank" style="color:#007bff;text-decoration:none;">View</a></td>`
           : `<td${st}>-</td>`;
-        return `<tr>${buildTds(row, 25, st)}${lastCell}</tr>`;
+        return `<tr>${buildTds(row, 25, st)}${lastCell}<td${st}>${esc(row[26])}</td></tr>`;
       });
       $('#dataTableE').html(rows.join(''));
     }
@@ -466,7 +472,7 @@
       const rows = data.map(row => {
         const isNotFixed = String(row[19] || '').toLowerCase().includes('not fixed');
         const st = isNotFixed ? ' style="color:red"' : '';
-        return `<tr>${buildTds(row, 22, st)}</tr>`;
+        return `<tr>${buildTds(row, 23, st)}</tr>`;
       });
       $('#dataTableTML').html(rows.join(''));
     }

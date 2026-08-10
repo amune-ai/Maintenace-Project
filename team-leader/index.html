@@ -128,6 +128,7 @@
             <th>Area of Malfunction</th><th>Malfunction</th><th>Model</th>
             <th>Serial</th><th>Supplier</th><th>Recap Info</th><th>Code</th>
             <th>Technician Status</th><th>Reason</th><th>Fixed Notes</th>
+            <th>TL Notes</th>
             <th>Fixed</th><th>Not Fixed</th>
           </tr></thead>
           <tbody id="dataTable"></tbody>
@@ -149,6 +150,7 @@
             <th>TimeStamp of Not Fixed</th><th>Reasons</th>
             <th>TimeStamp of Fixed</th><th>Fixed Notes</th>
             <th>Teamleader Review</th><th>Review TimeStamp</th><th>Teamleader Name</th><th>Invoice File</th>
+            <th>TL Notes</th>
           </tr></thead>
           <tbody id="dataTable2"></tbody>
         </table>
@@ -236,7 +238,7 @@
           techStatus === 'Not Fixed' || techStatus === 'pending') ? 'disabled' : '';
 
         rows.push(`<tr>
-          ${buildTds(row, 17, st)}
+          ${buildTds(row, 18, st)}
           <td${st}><input type="checkbox" class="checkbox-lg fixed"
             data-row='${esc(JSON.stringify(row))}' ${isDisabled}></td>
           <td${st}><input type="checkbox" class="checkbox-lg not-fixed"
@@ -257,7 +259,7 @@
         const lastCell = lastVal.trim() !== ''
           ? `<td${st}><a href="${esc(lastVal)}" target="_blank" style="color:#007bff;text-decoration:none;">View</a></td>`
           : `<td${st}>-</td>`;
-        return `<tr>${buildTds(row, 22, st)}${lastCell}</tr>`;
+        return `<tr>${buildTds(row, 22, st)}${lastCell}<td${st}>${esc(row[23])}</td></tr>`;
 
       });
       $('#dataTable2').html(rows.join(''));

@@ -165,6 +165,7 @@
             <th>Serial</th><th>Supplier</th><th>Recap Info</th><th>Code</th>
             <th>Companies</th><th>Sent</th>
             <th>Rejected Reason</th><th>Rejected TimeStamp</th><th>Rejected Company</th>
+            <th>TL Notes</th>
           </tr></thead>
           <tbody id="dataTable"></tbody>
         </table>
@@ -182,6 +183,7 @@
             <th>Area of Malfunction</th><th>Malfunction</th><th>Model</th>
             <th>Serial</th><th>Supplier</th><th>Recap Info</th><th>Code</th>
             <th>Company Name</th><th>TimeStamp Admin Sent</th><th>Admin Name</th>
+            <th>TL Notes</th>
           </tr></thead>
           <tbody id="dataTableB"></tbody>
         </table>
@@ -200,6 +202,7 @@
             <th>Serial</th><th>Supplier</th><th>Recap Info</th><th>Code</th>
             <th>Company Name</th><th>TimeStamp Admin Sent</th><th>Admin Name</th>
             <th>Company Received By</th><th>TimeStamp Company Received</th>
+            <th>TL Notes</th>
           </tr></thead>
           <tbody id="dataTableC"></tbody>
         </table>
@@ -219,6 +222,7 @@
             <th>Company Name</th><th>TimeStamp Admin Sent</th><th>Admin Name</th>
             <th>Company Received By</th><th>TimeStamp Company Received</th>
             <th>Technician Name</th><th>TimeStamp Technician Received</th>
+            <th>TL Notes</th>
           </tr></thead>
           <tbody id="dataTableD"></tbody>
         </table>
@@ -239,6 +243,7 @@
             <th>Company Received By</th><th>TimeStamp Company Received</th>
             <th>Technician Name</th><th>TimeStamp Technician Received</th>
             <th>TimeStamp of Not Fixed</th><th>Reasons</th>
+            <th>TL Notes</th>
           </tr></thead>
           <tbody id="dataTableE"></tbody>
         </table>
@@ -260,6 +265,7 @@
             <th>Technician Name</th><th>TimeStamp Technician Received</th>
             <th>TimeStamp of Not Fixed</th><th>Reasons</th>
             <th>TimeStamp of Fixed</th><th>Fixed Notes</th><th>Invoice File</th>
+            <th>TL Notes</th>
           </tr></thead>
           <tbody id="dataTableF"></tbody>
         </table>
@@ -280,6 +286,7 @@
             <th>TimeStamp of Not Fixed</th><th>Reasons</th>
             <th>TimeStamp of Fixed</th><th>Fixed Notes</th>
             <th>Teamleader Review</th><th>Review TimeStamp</th><th>Teamleader Name</th>
+            <th>TL Notes</th>
           </tr></thead>
           <tbody id="dataTableTML"></tbody>
         </table>
@@ -393,6 +400,7 @@
           <td${st}>${esc(row[16])}</td>
           <td${st}>${esc(row[17])}</td>
           <td${st}>${esc(row[18])}</td>
+          <td${st}>${esc(row[19])}</td>
         </tr>`);
       });
       tbody.html(rows.join(''));
@@ -404,7 +412,7 @@
     function renderTable2(data) {
       const rows = data.map(row => {
         const st = isOver24hBetween(row[1], row[15]) ? ' style="color:red"' : '';
-        return `<tr>${buildTds(row, 17, st)}</tr>`;
+        return `<tr>${buildTds(row, 18, st)}</tr>`;
       });
       $('#dataTableB').html(rows.join(''));
     }
@@ -413,7 +421,7 @@
     function renderTable3(data) {
       const rows = data.map(row => {
         const st = isOver24hBetween(row[1], row[18]) ? ' style="color:red"' : '';
-        return `<tr>${buildTds(row, 19, st)}</tr>`;
+        return `<tr>${buildTds(row, 20, st)}</tr>`;
       });
       $('#dataTableC').html(rows.join(''));
     }
@@ -422,7 +430,7 @@
     function renderTable4(data) {
       const rows = data.map(row => {
         const st = isOver24hBetween(row[1], row[20]) ? ' style="color:red"' : '';
-        return `<tr>${buildTds(row, 21, st)}</tr>`;
+        return `<tr>${buildTds(row, 22, st)}</tr>`;
       });
       $('#dataTableD').html(rows.join(''));
     }
@@ -431,7 +439,7 @@
     function renderTable5(data) {
       const rows = data.map(row => {
         const st = isOver24hBetween(row[1], row[21]) ? ' style="color:red"' : '';
-        return `<tr>${buildTds(row, 23, st)}</tr>`;
+        return `<tr>${buildTds(row, 24, st)}</tr>`;
       });
       $('#dataTableE').html(rows.join(''));
     }
@@ -446,7 +454,7 @@
         const lastCell = lastVal.trim() !== ''
           ? `<td${st}><a href="${esc(lastVal)}" target="_blank" style="color:#007bff;text-decoration:none;">View</a></td>`
           : `<td${st}>-</td>`;
-        return `<tr>${buildTds(row, 25, st)}${lastCell}</tr>`;
+        return `<tr>${buildTds(row, 25, st)}${lastCell}<td${st}>${esc(row[26])}</td></tr>`;
       });
       $('#dataTableF').html(rows.join(''));
     }
@@ -456,7 +464,7 @@
       const rows = data.map(row => {
         const st = String(row[19] || '').toLowerCase().includes('not fixed')
           ? ' style="color:red"' : '';
-        return `<tr>${buildTds(row, 22, st)}</tr>`;
+        return `<tr>${buildTds(row, 23, st)}</tr>`;
       });
       $('#dataTableTML').html(rows.join(''));
     }

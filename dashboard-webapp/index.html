@@ -391,10 +391,11 @@
               <th>Governorate - Center</th>
               <th>Area of Malfunction</th>
               <th>Invoice File</th>
+              <th>TL Notes</th>
             </tr>
           </thead>
           <tbody id="tableBody">
-            <tr><td colspan="11" class="table-empty">No data loaded yet.</td></tr>
+            <tr><td colspan="12" class="table-empty">No data loaded yet.</td></tr>
           </tbody>
         </table>
       </div>
@@ -645,7 +646,7 @@
     const slice = paginationMode === 'server' ? allTableRows : allTableRows.slice(start, start + PAGE_SIZE);
 
     if (slice.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="11" class="table-empty">No records found.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="12" class="table-empty">No records found.</td></tr>';
       document.getElementById('tableInfo').textContent = '';
       document.getElementById('paginationBtns').innerHTML = '';
       return;
@@ -683,6 +684,7 @@
         <td>${esc(joinNonEmpty([row.governorate, row.center], ' - '))}</td>
         <td>${esc(row.areaOfMalfunction)}</td>
         <td>${pdfCell}</td>
+        <td>${esc(row.tlNotes)}</td>
       </tr>
     `;
     }).join('');

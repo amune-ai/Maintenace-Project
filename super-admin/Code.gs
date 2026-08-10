@@ -114,7 +114,7 @@ function rebuildDataCachePartial(targetSheetName) {
 
   SpreadsheetApp.flush();
 
-  const MAX_COL = 41;
+  const MAX_COL = 47;
   let cacheSheet = ss.getSheetByName(DATACACHE_SHEET);
   if (!cacheSheet || cacheSheet.getLastRow() < 1) {
     Logger.log('DataCache belum ada — update timestamp saja');
@@ -203,7 +203,7 @@ function rebuildDataCache() {
   let cacheSheet = ss.getSheetByName(DATACACHE_SHEET);
   if (!cacheSheet) cacheSheet = ss.insertSheet(DATACACHE_SHEET);
 
-  const MAX_COL = 41;
+  const MAX_COL = 47;
   const allRows = [];
 
   ALL_SHEET_NAMES.forEach(sheetName => {
@@ -274,6 +274,11 @@ function getAllTableData(center) {
     }
   } catch(e) { Logger.log('Companies error: ' + e); }
 
+  // TL Notes: combines AQ, AR, AT, AU (skips AS) into one display string
+  function tlNotes(r) {
+    return [r[42], r[43], r[45], r[46]].filter(v => v && String(v).trim() !== '').join(' | ');
+  }
+
   // Single pass over the cache: each row is checked against all 7 table
   // conditions instead of re-scanning the whole array once per table.
   const table1 = [];
@@ -296,7 +301,8 @@ function getAllTableData(center) {
         r[20] || '',   // Sent timestamp
         r[38] || '',   // Rejected Reason
         r[39] || '',   // Rejected Timestamp
-        r[40] || ''    // Rejected Company
+        r[40] || '',   // Rejected Company
+        tlNotes(r)     // TL Notes
       ]);
     }
 
@@ -306,7 +312,8 @@ function getAllTableData(center) {
         ...r.slice(0, 14),
         r[19] || '',   // Company Name
         r[20] || '',   // TimeStamp Admin Sent
-        r[21] || ''    // Admin Name
+        r[21] || '',   // Admin Name
+        tlNotes(r)     // TL Notes
       ]);
     }
 
@@ -318,7 +325,8 @@ function getAllTableData(center) {
         r[20] || '',   // TimeStamp Admin Sent
         r[21] || '',   // Admin Name
         r[24] || '',   // Company Received By
-        r[25] || ''    // TimeStamp Company Received
+        r[25] || '',   // TimeStamp Company Received
+        tlNotes(r)     // TL Notes
       ]);
     }
 
@@ -332,7 +340,8 @@ function getAllTableData(center) {
         r[24] || '',   // Company Received By
         r[25] || '',   // TimeStamp Company Received
         r[28] || '',   // Technician Name
-        r[29] || ''    // TimeStamp Technician Received
+        r[29] || '',   // TimeStamp Technician Received
+        tlNotes(r)     // TL Notes
       ]);
     }
 
@@ -348,7 +357,8 @@ function getAllTableData(center) {
         r[28] || '',   // Technician Name
         r[29] || '',   // TimeStamp Technician Received
         r[33] || '',   // TimeStamp of Not Fixed
-        r[34] || ''    // Reasons
+        r[34] || '',   // Reasons
+        tlNotes(r)     // TL Notes
       ]);
     }
 
@@ -368,7 +378,8 @@ function getAllTableData(center) {
           r[34] || '',  // Reasons
           r[36] || '',   // TimeStamp of Fixed
           r[35] || '',   // Fixed Notes
-          r[41] || ''   // pdf
+          r[41] || '',  // pdf
+          tlNotes(r)    // TL Notes
         ],
         sortKey: parseDateDDMMYYYY(r[36]) || new Date(0)
       });
@@ -385,7 +396,8 @@ function getAllTableData(center) {
         r[35] || '',   // Fixed Notes
         r[14] || '',   // Teamleader Review (col O)
         r[16] || '',   // Review TimeStamp
-        r[37] || ''    // Teamleader Name
+        r[37] || '',   // Teamleader Name
+        tlNotes(r)     // TL Notes
       ]);
     }
   }

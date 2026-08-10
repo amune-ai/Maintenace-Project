@@ -71,13 +71,17 @@ const COL = {
   TECH_STATUS:    30,
   TS_NOT_FIXED:   33,
   TS_FIXED:       36,
-  PDF:            41
+  PDF:            41,
+  TL_NOTES_AQ:    42,
+  TL_NOTES_AR:    43,
+  TL_NOTES_AT:    45,
+  TL_NOTES_AU:    46
 };
 
 // ─── Raw DataCache read, shared by getFilterOptions/getDashboardData ─────────
 // Keyed on CacheTimestamp so repeated calls (e.g. getFilterOptions +
 // getDashboardData back-to-back on login, or rapid filter re-applies) reuse
-// the same read instead of each doing their own full 42-column sheet read —
+// the same read instead of each doing their own full 47-column sheet read —
 // and it's automatically invalidated the moment any of the 6 write-capable
 // apps actually changes the data, not on a blind timer.
 const RAW_CACHE_KEY_PREFIX = 'dashboard_raw_datacache_';
@@ -110,7 +114,7 @@ function readRawDataCache() {
   // below (for caching) silently converts it to an ISO "...T...Z" string,
   // and JSON.parse() on a cache hit never converts it back — so cached
   // rows would show raw ISO timestamps instead of the formatted ones.
-  const data = cacheSheet.getRange(1, 1, lastRow, 42).getValues().map(row =>
+  const data = cacheSheet.getRange(1, 1, lastRow, 47).getValues().map(row =>
     row.map(cell => cell instanceof Date
       ? Utilities.formatDate(cell, Session.getScriptTimeZone(), 'yyyy-MM-dd HH:mm:ss')
       : cell
@@ -274,7 +278,9 @@ function getDashboardData(filters, page) {
       governorate:       fmt(row[COL.GOVERNORATE]),
       center:            fmt(row[COL.CENTER]),
       areaOfMalfunction: fmt(row[COL.AREA_OF_MALFUNCTION]),
-      pdf:               fmt(row[COL.PDF])
+      pdf:               fmt(row[COL.PDF]),
+      tlNotes:           [row[COL.TL_NOTES_AQ], row[COL.TL_NOTES_AR], row[COL.TL_NOTES_AT], row[COL.TL_NOTES_AU]]
+                            .map(fmt).filter(v => v !== '').join(' | ')
     }));
 
     return {

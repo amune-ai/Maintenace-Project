@@ -154,6 +154,7 @@
             <th>Company Name</th><th>TimeStamp Admin Sent</th><th>Admin Name</th>
             <th>Company Received By</th><th>TimeStamp Company Received</th>
             <th>Technician Name</th><th>TimeStamp Technician Received</th>
+            <th>TL Notes</th>
             <th>Fixed</th><th>Not Fixed</th>
           </tr></thead>
           <tbody id="dataTable"></tbody>
@@ -176,6 +177,7 @@
             <th>Technician Name</th><th>TimeStamp Technician Received</th>
             <th>TimeStamp of Not Fixed</th><th>Reasons</th>
             <th>TimeStamp of Fixed</th><th>Fixed Notes</th><th>Invoice File</th>
+            <th>TL Notes</th>
           </tr></thead>
           <tbody id="dataTableB"></tbody>
         </table>
@@ -195,7 +197,8 @@
             <th>Company Name</th><th>TimeStamp Admin Sent</th><th>Admin Name</th>
             <th>Company Received By</th><th>TimeStamp Company Received</th>
             <th>Technician Name</th><th>TimeStamp Technician Received</th>
-            <th>TimeStamp of Not Fixed</th><th>Reasons</th><th>Fixed</th>
+            <th>TimeStamp of Not Fixed</th><th>Reasons</th>
+            <th>TL Notes</th><th>Fixed</th>
           </tr></thead>
           <tbody id="dataTableC"></tbody>
         </table>
@@ -216,6 +219,7 @@
             <th>TimeStamp of Not Fixed</th><th>Reasons</th>
             <th>TimeStamp of Fixed</th><th>Fixed Notes</th>
             <th>Teamleader Review</th><th>Review TimeStamp</th><th>Teamleader Name</th>
+            <th>TL Notes</th>
           </tr></thead>
           <tbody id="dataTableTML"></tbody>
         </table>
@@ -306,7 +310,7 @@
       data.forEach(row => {
         const st = isOver24h(row[1]) ? ' style="color:red"' : '';
         rows.push(`<tr>
-          ${buildTds(row, 21, st)}
+          ${buildTds(row, 22, st)}
           <td${st}><input type="checkbox" class="checkbox-lg fixed" data-row='${esc(JSON.stringify(row))}'></td>
           <td${st}><input type="checkbox" class="checkbox-lg not-fixed" data-row='${esc(JSON.stringify(row))}'></td>
         </tr>`);
@@ -327,7 +331,7 @@
         const lastCell = lastVal.trim() !== ''
           ? `<td${st}><a href="${esc(lastVal)}" target="_blank" style="color:#007bff;text-decoration:none;">View</a></td>`
           : `<td${st}>-</td>`;
-        return `<tr>${buildTds(row, 25, st)}${lastCell}</tr>`;
+        return `<tr>${buildTds(row, 25, st)}${lastCell}<td${st}>${esc(row[26])}</td></tr>`;
       });
       $('#dataTableB').html(rows.join(''));
     }
@@ -338,7 +342,7 @@
       data.forEach(row => {
         const st = isOver24hBetween(row[1], row[21]) ? ' style="color:red"' : '';
         rows.push(`<tr>
-          ${buildTds(row, 23, st)}
+          ${buildTds(row, 24, st)}
           <td${st}><input type="checkbox" class="checkbox-lg fixedC" data-row='${esc(JSON.stringify(row))}'></td>
         </tr>`);
       });
@@ -351,7 +355,7 @@
       const rows = data.map(row => {
         const st = String(row[19] || '').toLowerCase().includes('not fixed')
           ? ' style="color:red"' : '';
-        return `<tr>${buildTds(row, 22, st)}</tr>`;
+        return `<tr>${buildTds(row, 23, st)}</tr>`;
       });
       $('#dataTableTML').html(rows.join(''));
     }

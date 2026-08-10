@@ -139,7 +139,7 @@ function rebuildDataCache() {
   }
 
   const allRows = [];
-  const MAX_COL = 41;
+  const MAX_COL = 47;
 
   ALL_SHEET_NAMES.forEach(sheetName => {
     const sheet = ss.getSheetByName(sheetName);
@@ -199,7 +199,7 @@ function rebuildDataCachePartial(targetSheetName) {
   SpreadsheetApp.flush();
 
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-  const MAX_COL = 41;
+  const MAX_COL = 47;
 
   let cacheSheet = ss.getSheetByName(DATACACHE_SHEET);
   if (!cacheSheet || cacheSheet.getLastRow() < 1) {
@@ -330,6 +330,11 @@ function readDataCache() {
 // ═════════════════════════════════════════════════════════════════════════════
 // MASTER FETCH: filter from DataCache, send all tables at once
 // ═════════════════════════════════════════════════════════════════════════════
+// TL Notes: combines AQ, AR, AT, AU (skips AS) into one display string
+function tlNotes(r) {
+  return [r[42], r[43], r[45], r[46]].filter(v => v && String(v).trim() !== '').join(' | ');
+}
+
 function getAllTableData(governate, center, currentAdminName) {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
 
@@ -354,7 +359,7 @@ function getAllTableData(governate, center, currentAdminName) {
     const centerMatch = !center || r[3] === center;
 
     if (r[23] === 'pending' && r[19] === currentAdminName) {
-      table1.push([...r.slice(0, 14), r[19] || '', r[20] || '', r[21] || '']);
+      table1.push([...r.slice(0, 14), r[19] || '', r[20] || '', r[21] || '', tlNotes(r)]);
     }
 
     if (
@@ -367,7 +372,7 @@ function getAllTableData(governate, center, currentAdminName) {
         r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7], r[8], r[9],
         r[10], r[11], r[12], r[13],
         r[19] || '', r[20] || '', r[21] || '', r[23] || '',
-        r[24] || '', r[25] || '', r[28] || ''
+        r[24] || '', r[25] || '', r[28] || '', tlNotes(r)
       ]);
     }
 
@@ -380,7 +385,7 @@ function getAllTableData(governate, center, currentAdminName) {
         r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7], r[8], r[9],
         r[10], r[11], r[12], r[13],
         r[19] || '', r[20] || '', r[21] || '',
-        r[24] || '', r[25] || '', r[28] || '', r[29] || ''
+        r[24] || '', r[25] || '', r[28] || '', r[29] || '', tlNotes(r)
       ]);
     }
 
@@ -390,7 +395,7 @@ function getAllTableData(governate, center, currentAdminName) {
         r[10], r[11], r[12], r[13],
         r[19] || '', r[20] || '', r[21] || '',
         r[24] || '', r[25] || '', r[28] || '', r[29] || '',
-        r[33] || '', r[34] || ''
+        r[33] || '', r[34] || '', tlNotes(r)
       ]);
     }
 
@@ -403,7 +408,8 @@ function getAllTableData(governate, center, currentAdminName) {
           r[24] || '', r[25] || '', r[28] || '', r[29] || '',
           r[33] || '',  // TimeStamp of Not Fixed
           r[34] || '',  // Reasons
-          r[36] || '', r[35] || '', r[41] || ''   // pdf
+          r[36] || '', r[35] || '', r[41] || '',  // pdf
+          tlNotes(r)    // TL Notes
         ],
         sortKey: combinedValues[i]
       });
@@ -418,7 +424,7 @@ function getAllTableData(governate, center, currentAdminName) {
       tableTML.push([
         ...r.slice(0, 14),
         r[31] || '', r[33] || '', r[34] || '', r[36] || '', r[35] || '',
-        r[15] || '', r[16] || '', r[37] || ''
+        r[15] || '', r[16] || '', r[37] || '', tlNotes(r)
       ]);
     }
   }

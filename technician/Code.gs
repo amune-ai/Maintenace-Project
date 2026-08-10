@@ -138,7 +138,7 @@ function rebuildDataCache() {
   let cacheSheet = ss.getSheetByName(DATACACHE_SHEET);
   if (!cacheSheet) cacheSheet = ss.insertSheet(DATACACHE_SHEET);
 
-  const MAX_COL = 42;
+  const MAX_COL = 47;
   const allRows = [];
 
   ALL_SHEET_NAMES.forEach(sheetName => {
@@ -196,7 +196,7 @@ function rebuildDataCachePartial(targetSheetName) {
 
   SpreadsheetApp.flush();
 
-  const MAX_COL = 42;
+  const MAX_COL = 47;
   let cacheSheet = ss.getSheetByName(DATACACHE_SHEET);
   if (!cacheSheet || cacheSheet.getLastRow() < 1) {
     Logger.log('DataCache doesnt exist yet — just update timestamp');
@@ -461,6 +461,11 @@ function getCompleteRowFromTable2(table2Sheet, rowDataFromSubmit, ts, fn) {
 function getAllTableData(governate, center, currentAdminName) {
   const rows = readDataCache();
 
+  // TL Notes: combines AQ, AR, AT, AU (skips AS) into one display string
+  function tlNotes(r) {
+    return [r[42], r[43], r[45], r[46]].filter(v => v && String(v).trim() !== '').join(' | ');
+  }
+
   // Single pass over the cache: each row is checked against all 4 table
   // conditions instead of re-scanning the whole array once per table.
   const table1Items = [];
@@ -483,7 +488,8 @@ function getAllTableData(governate, center, currentAdminName) {
           r[24] || '',  // Company Received By
           r[25] || '',  // TimeStamp Company Received
           r[28] || '',  // Technician Name
-          r[29] || ''   // TimeStamp Technician Received
+          r[29] || '',  // TimeStamp Technician Received
+          tlNotes(r)    // TL Notes
         ],
         sortKey: parseDateDDMMYYYY(r[29]) || new Date(0)
       });
@@ -505,7 +511,8 @@ function getAllTableData(governate, center, currentAdminName) {
           r[34] || '',  // Reasons
           r[36] || '',  // TimeStamp of Fixed
           r[35] || '',   // Fixed Notes
-          r[41] || ''   // pdf
+          r[41] || '',  // pdf
+          tlNotes(r)    // TL Notes
         ],
         sortKey: parseDateDDMMYYYY(r[36]) || new Date(0)
       });
@@ -524,7 +531,8 @@ function getAllTableData(governate, center, currentAdminName) {
           r[28] || '',  // Technician Name
           r[29] || '',  // TimeStamp Technician Received
           r[33] || '',  // TimeStamp of Not Fixed
-          r[34] || ''   // Reasons
+          r[34] || '',  // Reasons
+          tlNotes(r)    // TL Notes
         ],
         sortKey: parseDateDDMMYYYY(r[33]) || new Date(0)
       });
@@ -542,7 +550,8 @@ function getAllTableData(governate, center, currentAdminName) {
           r[35] || '',  // Fixed Notes
           r[15] || '',  // Teamleader Review
           r[16] || '',  // Review TimeStamp
-          r[37] || ''   // Teamleader Name
+          r[37] || '',  // Teamleader Name
+          tlNotes(r)    // TL Notes
         ],
         sortKey: parseDateDDMMYYYY(r[16]) || new Date(0)
       });

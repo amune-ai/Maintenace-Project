@@ -112,7 +112,7 @@ function rebuildDataCache() {
   let cacheSheet = ss.getSheetByName(DATACACHE_SHEET);
   if (!cacheSheet) cacheSheet = ss.insertSheet(DATACACHE_SHEET);
 
-  const MAX_COL = 42;
+  const MAX_COL = 47;
   const allRows = [];
 
   ALL_SHEET_NAMES.forEach(sheetName => {
@@ -172,7 +172,7 @@ function rebuildDataCachePartial(targetSheetName) {
   SpreadsheetApp.flush();
 
   const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const MAX_COL = 42;
+  const MAX_COL = 47;
 
   let cacheSheet = ss.getSheetByName(DATACACHE_SHEET);
   if (!cacheSheet || cacheSheet.getLastRow() < 1) {
@@ -258,6 +258,11 @@ function setupDataCache() {
 // ═════════════════════════════════════════════════════════════════════════════
 // MASTER FETCH: all tables in 1 server call
 // ═════════════════════════════════════════════════════════════════════════════
+// TL Notes: combines AQ, AR, AT, AU (skips AS) into one display string
+function tlNotes(r) {
+  return [r[42], r[43], r[45], r[46]].filter(v => v && String(v).trim() !== '').join(' | ');
+}
+
 function getAllTableData(governate, center) {
   const rows = readDataCache();
 
@@ -276,7 +281,8 @@ function getAllTableData(governate, center) {
         ...r.slice(0, 14),
         r[31] || '',  // Technician Status
         r[34] || '',  // Reason
-        r[35] || ''   // Fixed Notes
+        r[35] || '',  // Fixed Notes
+        tlNotes(r)    // TL Notes
       ]);
     }
 
@@ -294,7 +300,8 @@ function getAllTableData(governate, center) {
           r[15] || '',  // Teamleader Review
           r[16] || '',  // Review TimeStamp
           r[37] || '',   // Teamleader Name
-          r[41] || ''   // pdf
+          r[41] || '',  // pdf
+          tlNotes(r)    // TL Notes
         ],
         sortKey: parseDateDDMMYYYY(r[16]) || new Date(0)
       });
