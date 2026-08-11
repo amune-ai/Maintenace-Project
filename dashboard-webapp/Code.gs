@@ -50,7 +50,7 @@ function doLogin(username, password) {
 // W=22 Received/Reject
 // Z=25 TimeStamp Company Received
 // AD=29 TimeStamp Technician Received
-// AE=30 Fixed/Not Fixed
+// AF=31 Fixed/Not Fixed
 // AH=33 TimeStamp of Not Fixed
 // AK=36 TimeStamp of Fixed
 // AP=41 Invoice File (pdf)
@@ -68,7 +68,7 @@ const COL = {
   STATUS:         22,
   TS_CO_RECEIVED: 25,
   TS_TECH_RECEIVED: 29,
-  TECH_STATUS:    30,
+  TECH_STATUS:    31,
   TS_NOT_FIXED:   33,
   TS_FIXED:       36,
   PDF:            41,
